@@ -1,21 +1,50 @@
 {
-  "name": "Football Matches AI",
-  "short_name": "Matches AI",
-  "start_url": "./index.html",
+  "name": "Football AI Pro",
+  "short_name": "Football AI",
+  "description": "النظام الذكي المتقدم لمواعيد المباريات العالمية بدقة عالية وتحديث تلقائي",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#0b1220",
-  "theme_color": "#00e676",
+  "background_color": "#1a237e",
+  "theme_color": "#1a237e",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "productivity", "news"],
+  "shortcuts": [
+    {
+      "name": "مباريات اليوم",
+      "short_name": "اليوم",
+      "description": "عرض مباريات اليوم المهمة",
+      "url": "/?tab=today"
+    },
+    {
+      "name": "المباريات المباشرة",
+      "short_name": "مباشر",
+      "description": "المباريات المباشرة الآن",
+      "url": "/?tab=live"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "لوحة التحكم الذكية"
     }
   ]
 }
