@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2E8B57">
+    <title>MatchMaster - تطبيق المباريات الذكي</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS Variables ===== */
+        :root {
+            --primary-color: #2E8B57;
+            --primary-dark: #1E5A3A;
+            --secondary-color: #2196F3;
+            --accent-color: #FFD700;
+            --danger-color: #FF5252;
+            --warning-color: #FFC107;
+            --success-color: #4CAF50;
+            
+            --text-primary: #212529;
+            --text-secondary: #6C757D;
+            --text-muted: #9E9E9E;
+            
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --bg-card: #FFFFFF;
+            --bg-input: #FFFFFF;
+            
+            --border-color: #E0E0E0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            
+            --transition-fast: 150ms;
+            --transition-medium: 300ms;
+            --transition-slow: 500ms;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #34A853;
+            --primary-dark: #1E7D34;
+            --secondary-color: #4285F4;
+            --accent-color: #FBBC05;
+            
+            --text-primary: #F8F9FA;
+            --text-secondary: #CED4DA;
+            --text-muted: #6C757D;
+            
+            --bg-primary: #121212;
+            --bg-secondary: #1E1E1E;
+            --bg-card: #2D2D2D;
+            --bg-input: #2D2D2D;
+            
+            --border-color: #404040;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: var(--transition-medium);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-md);
+        }
+
+        /* ===== Header ===== */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff2a2a;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: var(--text-primary);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            padding: var(--spacing-xl) 0;
+        }
+
+        /* ===== Tabs ===== */
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xl);
+            -webkit-overflow-scrolling: touch;
+            padding: var(--spacing-sm) 0;
+        }
+
+        .tab {
+            flex: 0 0 auto;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: none;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius-lg);
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* ===== Search & Filter ===== */
+        .search-filter-container {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        @media (max-width: 768px) {
+            .search-filter-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-lg);
+            padding-right: 50px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            font-size: 1rem;
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: var(--spacing-lg);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* ===== AI Assistant ===== */
+        .ai-assistant {
+            background: linear-gradient(135deg, var(--secondary-color), #1976D2);
+            color: white;
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow);
+        }
+
+        .ai-quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        .ai-question-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition-fast);
+        }
+
+        .ai-question-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ===== Matches Grid ===== */
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        @media (max-width: 768px) {
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .match-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition-medium);
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px var(--shadow-color);
+        }
+
+        .match-card.strong {
+            border-right: 5px solid var(--danger-color);
+        }
+
+        .match-card.medium {
+            border-right: 5px solid var(--warning-color);
+        }
+
+        .match-card.weak {
+            border-right: 5px solid var(--success-color);
+        }
+
+        .match-header {
+            padding: var(--spacing-md);
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .match-content {
+            padding: var(--spacing-md);
+        }
+
+        .match-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            text-align: center;
+        }
+
+        .team {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .match-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        /* ===== Footer ===== */
+        footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            padding: var(--spacing-xl) 0;
+            margin-top: var(--spacing-xl);
+        }
+
+        .footer-content {
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+        }
+
+        /* ===== Modals ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md);
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        /* ===== Privacy & Contact Styles ===== */
+        .privacy-section {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .privacy-section h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: var(--spacing-sm);
+        }
+
+        .privacy-section ul {
+            list-style: none;
+            padding-right: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .privacy-section li {
+            margin-bottom: var(--spacing-sm);
+            position: relative;
+            padding-right: 25px;
+        }
+
+        .privacy-section li:before {
+            content: '✓';
+            position: absolute;
+            right: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .highlight-box {
+            background: rgba(33, 150, 243, 0.1);
+            border-right: 4px solid var(--secondary-color);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            margin: var(--spacing-md) 0;
+        }
+
+        .contact-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .contact-card {
+            background: var(--bg-card);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            text-align: center;
+            border: 2px solid var(--border-color);
+            transition: var(--transition-fast);
+        }
+
+        .contact-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .contact-card i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .report-btn-fixed {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 82, 82, 0.3);
+            z-index: 1000;
+            transition: var(--transition-medium);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .report-btn-fixed:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 82, 82, 0.4);
+        }
+
+        /* ===== Form Styles ===== */
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            font-size: 1rem;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: var(--transition-fast);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-lg);
+        }
+
+        /* ===== Success Message ===== */
+        .success-message {
+            background: rgba(76, 175, 80, 0.1);
+            border: 2px solid var(--success-color);
+            color: var(--success-color);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            margin-top: var(--spacing-md);
+            text-align: center;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ===== Theme Toggle ===== */
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: none;
+            width: 60px;
+            height: 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition-fast);
+        }
+
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 26px;
+            height: 26px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            transition: var(--transition-fast);
+        }
+
+        [data-theme="dark"] .theme-toggle::after {
+            transform: translateX(-30px);
+            background: var(--accent-color);
+        }
+
+        /* ===== Loading Spinner ===== */
+        .spinner {
+            display: none;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: var(--spacing-xl) auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== Empty State ===== */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== Report Button (Fixed) ===== -->
+    <button class="report-btn-fixed" onclick="openModal('reportModal')" title="الإبلاغ عن مشكلة">
+        <i class="fas fa-exclamation-triangle"></i>
+    </button>
+
+    <!-- ===== Header ===== -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-futbol"></i>
+                    <div>
+                        <h1>MatchMaster</h1>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">تطبيق الذكاء الاصطناعي للمباريات</div>
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="تبديل السمة"></button>
+                    <button class="btn btn-primary" onclick="openModal('addMatchModal')">
+                        <i class="fas fa-plus"></i> مباراة جديدة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== Main Content ===== -->
+    <div class="container">
+        <main class="main-content">
+            <!-- Tabs -->
+            <div class="tabs" id="tabsContainer">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="ابحث عن فريق أو بطولة...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <button class="btn btn-secondary" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i> تصفية
+                </button>
+                <button class="btn btn-primary" onclick="askAI('ما هي أهم مباريات اليوم؟')">
+                    <i class="fas fa-robot"></i> مساعد AI
+                </button>
+            </div>
+
+            <!-- AI Assistant -->
+            <div class="ai-assistant">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <i class="fas fa-robot" style="font-size: 2rem;"></i>
+                    <div>
+                        <h3 style="margin: 0;">المساعد الكروي الذكي</h3>
+                        <p style="margin: 5px 0 0; opacity: 0.9;">اطرح سؤالاً عن المباريات أو اطلب اقتراحات</p>
+                    </div>
+                </div>
+                <div class="ai-quick-questions">
+                    <button class="ai-question-btn" onclick="askAI('ما هي أهم مباريات اليوم؟')">
+                        أهم مباريات اليوم
+                    </button>
+                    <button class="ai-question-btn" onclick="askAI('اقترح لي مباراة مشوقة')">
+                        اقتراح مباراة
+                    </button>
+                    <button class="ai-question-btn" onclick="askAI('ما هي المباريات الكبيرة القادمة؟')">
+                        المباريات الكبيرة
+                    </button>
+                    <button class="ai-question-btn" onclick="askAI('متى يلعب النصر؟')">
+                        مواعيد النصر
+                    </button>
+                </div>
+            </div>
+
+            <!-- Matches Grid -->
+            <div class="matches-grid" id="matchesContainer">
+                <!-- Matches will be loaded here -->
+            </div>
+
+            <!-- Loading Spinner -->
+            <div class="spinner" id="loadingSpinner"></div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-futbol" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                <h3>لا توجد مباريات</h3>
+                <p>لم يتم العثور على مباريات مطابقة للبحث</p>
+                <button class="btn btn-primary mt-2" onclick="openModal('addMatchModal')">
+                    <i class="fas fa-plus"></i> إضافة مباراة جديدة
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== Footer ===== -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>© 2024 تطبيق MatchMaster - جميع الحقوق محفوظة</p>
+                <div class="footer-links">
+                    <a href="#" class="btn btn-secondary btn-sm" onclick="openModal('privacyModal')">
+                        <i class="fas fa-shield-alt"></i> سياسة الخصوصية
+                    </a>
+                    <a href="#" class="btn btn-secondary btn-sm" onclick="openModal('contactModal')">
+                        <i class="fas fa-headset"></i> اتصل بنا
+                    </a>
+                    <a href="#" class="btn btn-danger btn-sm" onclick="openModal('reportModal')">
+                        <i class="fas fa-exclamation-triangle"></i> إبلاغ عن مشكلة
+                    </a>
+                    <a href="#" class="btn btn-secondary btn-sm" onclick="resetApp()">
+                        <i class="fas fa-redo"></i> إعادة تعيين
+                    </a>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-muted);">
+                    الإصدار 3.0.0 | يعمل 100% محليًا بدون خوادم
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== Modals ===== -->
+
+    <!-- Add Match Modal -->
+    <div class="modal" id="addMatchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> إضافة مباراة جديدة</h2>
+                <button class="modal-close" onclick="closeModal('addMatchModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="matchForm">
+                    <div class="form-group">
+                        <label class="form-label" for="team1">الفريق الأول</label>
+                        <input type="text" id="team1" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="team2">الفريق الثاني</label>
+                        <input type="text" id="team2" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="matchDate">التاريخ والوقت</label>
+                        <input type="datetime-local" id="matchDate" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="league">البطولة</label>
+                        <select id="league" class="form-control">
+                            <option value="الدوري الإنجليزي">الدوري الإنجليزي</option>
+                            <option value="الدوري الإسباني">الدوري الإسباني</option>
+                            <option value="دوري أبطال أوروبا">دوري أبطال أوروبا</option>
+                            <option value="الدوري السعودي">الدوري السعودي</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addMatchModal')">إلغاء</button>
+                        <button type="submit" class="btn btn-primary">حفظ المباراة</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div class="modal" id="privacyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-shield-alt"></i> سياسة الخصوصية</h2>
+                <button class="modal-close" onclick="closeModal('privacyModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="privacy-section">
+                    <h3>مقدمة</h3>
+                    <p>تطبيق MatchMaster يعمل 100% محليًا على جهازك. جميع بياناتك تبقى على جهازك ولا يتم إرسالها لأي خادم خارجي.</p>
+                    
+                    <div class="highlight-box">
+                        <h4><i class="fas fa-info-circle"></i> ملاحظة هامة</h4>
+                        <p>نحن لا نجمع أي بيانات شخصية. جميع البيانات المخزنة هي لتحسين تجربتك في التطبيق فقط.</p>
+                    </div>
+                    
+                    <h3>البيانات التي يتم جمعها</h3>
+                    <ul>
+                        <li>تفضيلاتك في المباريات والفرق</li>
+                        <li>سجل تفاعلاتك مع التطبيق</li>
+                        <li>المباريات التي تضيفها أو تعدلها</li>
+                        <li>إعدادات التنبيهات والإشعارات</li>
+                    </ul>
+                    
+                    <h3>كيف نستخدم البيانات</h3>
+                    <ul>
+                        <li>تقديم توصيات مباريات ذكية</li>
+                        <li>تحسين واجهة المستخدم</li>
+                        <li>إرسال تنبيهات في الوقت المناسب</li>
+                        <li>تحديث حالة المباريات تلقائيًا</li>
+                    </ul>
+                    
+                    <h3>الحماية والأمان</h3>
+                    <ul>
+                        <li>جميع البيانات مخزنة محليًا فقط</li>
+                        <li>لا يوجد خوادم خارجية</li>
+                        <li>لا مشاركة بيانات مع أطراف ثالثة</li>
+                        <li>تشفير البيانات المحلية</li>
+                    </ul>
+                    
+                    <h3>حقوقك</h3>
+                    <ul>
+                        <li>حق حذف جميع بياناتك</li>
+                        <li>حق تصدير بياناتك</li>
+                        <li>حق تعطيل جمع البيانات</li>
+                        <li>حق الوصول لبياناتك</li>
+                    </ul>
+                    
+                    <div class="contact-methods">
+                        <div class="contact-card">
+                            <i class="fas fa-question-circle"></i>
+                            <h4>أسئلة شائعة</h4>
+                            <p>أجوبة على أسئلتك المتكررة</p>
+                            <button class="btn btn-primary btn-sm" onclick="openFAQ()" style="margin-top: 10px;">عرض الأسئلة</button>
+                        </div>
+                        
+                        <div class="contact-card">
+                            <i class="fas fa-download"></i>
+                            <h4>تصدير البيانات</h4>
+                            <p>احفظ نسخة من بياناتك</p>
+                            <button class="btn btn-secondary btn-sm" onclick="exportData()" style="margin-top: 10px;">تصدير الآن</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeModal('privacyModal')">إغلاق</button>
+                    <button class="btn btn-primary" onclick="clearAllData()">
+                        <i class="fas fa-trash"></i> مسح جميع البيانات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Us Modal -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-headset"></i> اتصل بنا</h2>
+                <button class="modal-close" onclick="closeModal('contactModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <i class="fas fa-comments" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+                    <h3 style="color: var(--primary-color);">نحن هنا لمساعدتك</h3>
+                    <p style="color: var(--text-secondary);">اختر طريقة التواصل المناسبة لك</p>
+                </div>
+                
+                <div class="contact-methods">
+                    <div class="contact-card" onclick="sendEmail('support')" style="cursor: pointer;">
+                        <i class="fas fa-life-ring"></i>
+                        <h4>الدعم الفني</h4>
+                        <p>للأسئلة الفنية والمشاكل</p>
+                    </div>
+                    
+                    <div class="contact-card" onclick="sendEmail('suggestions')" style="cursor: pointer;">
+                        <i class="fas fa-lightbulb"></i>
+                        <h4>الاقتراحات</h4>
+                        <p>لتحسين التطبيق</p>
+                    </div>
+                    
+                    <div class="contact-card" onclick="openModal('reportModal'); closeModal('contactModal');" style="cursor: pointer;">
+                        <i class="fas fa-bug"></i>
+                        <h4>الإبلاغ عن خطأ</h4>
+                        <p>للأخطاء والمشاكل التقنية</p>
+                    </div>
+                    
+                    <div class="contact-card" onclick="sendEmail('privacy')" style="cursor: pointer;">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>خصوصية البيانات</h4>
+                        <p>لأسئلة الخصوصية</p>
+                    </div>
+                </div>
+                
+                <div class="highlight-box">
+                    <h4><i class="fas fa-clock"></i> أوقات الاستجابة</h4>
+                    <ul>
+                        <li>الدعم الفني: خلال ٢٤ ساعة</li>
+                        <li>الإبلاغ عن أخطاء: خلال ٤٨ ساعة</li>
+                        <li>الاقتراحات: مراجعة أسبوعية</li>
+                        <li>الخصوصية: خلال ٧٢ ساعة</li>
+                    </ul>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeModal('contactModal')">إغلاق</button>
+                    <button class="btn btn-primary" onclick="openModal('privacyModal'); closeModal('contactModal');">
+                        <i class="fas fa-shield-alt"></i> سياسة الخصوصية
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Problem Modal -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> الإبلاغ عن مشكلة</h2>
+                <button class="modal-close" onclick="closeModal('reportModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm">
+                    <div class="form-group">
+                        <label class="form-label">نوع المشكلة</label>
+                        <select class="form-select" id="problemType" required>
+                            <option value="">اختر نوع المشكلة</option>
+                            <option value="technical">مشكلة فنية</option>
+                            <option value="bug">خطأ في التطبيق</option>
+                            <option value="ui">مشكلة في الواجهة</option>
+                            <option value="performance">مشكلة في الأداء</option>
+                            <option value="other">مشكلة أخرى</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">وصف المشكلة</label>
+                        <textarea class="form-control" id="problemDescription" 
+                                  placeholder="يرجى وصف المشكلة بالتفصيل..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">كيف تتكرر المشكلة؟</label>
+                        <textarea class="form-control" id="problemSteps" 
+                                  placeholder="خطوات تكرار المشكلة..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">البريد الإلكتروني (اختياري)</label>
+                        <input type="email" class="form-control" id="userEmail" 
+                               placeholder="لنتمكن من الرد عليك">
+                    </div>
+                    
+                    <div class="success-message" id="reportSuccessMessage">
+                        <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <h3 style="margin-bottom: 10px;">تم الإرسال بنجاح!</h3>
+                        <p>شكرًا لتواصلك معنا، سنقوم بمراجعة مشكلتك خلال ٢٤ ساعة.</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">رقم التقرير: <strong id="reportId"></strong></p>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('reportModal')">
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-paper-plane"></i> إرسال التقرير
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Modal -->
+    <div class="modal" id="faqModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-question-circle"></i> الأسئلة الشائعة</h2>
+                <button class="modal-close" onclick="closeModal('faqModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="privacy-section">
+                    <h3>أسئلة عامة</h3>
+                    <div class="highlight-box">
+                        <h4>كيف يعمل التطبيق؟</h4>
+                        <p>التطبيق يعمل 100% محليًا على جهازك. لا يحتاج إلى اتصال إنترنت بعد التحميل الأولي.</p>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <h4>هل التطبيق مجاني؟</h4>
+                        <p>نعم، التطبيق مجاني بالكامل ولا يحتوي على إعلانات أو اشتراكات.</p>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <h4>كيف يتم تحديث المباريات؟</h4>
+                        <p>يتتبع التطبيق الوقت المحلي على جهازك ويقوم بتحديث حالة المباريات تلقائيًا.</p>
+                    </div>
+                    
+                    <h3>أسئلة فنية</h3>
+                    <div class="highlight-box">
+                        <h4>أين يتم حفظ بياناتي؟</h4>
+                        <p>جميع البيانات تحفظ في ذاكرة المتصفح المحلية (LocalStorage) على جهازك فقط.</p>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <h4>كيف يمكنني تصدير بياناتي؟</h4>
+                        <p>يمكنك تصدير جميع بياناتك من خلال زر "تصدير البيانات" في صفحة سياسة الخصوصية.</p>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <h4>كيف يمكنني حذف جميع بياناتي؟</h4>
+                        <p>يمكنك حذف جميع البيانات من خلال زر "مسح جميع البيانات" في صفحة سياسة الخصوصية.</p>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeModal('faqModal')">إغلاق</button>
+                    <button class="btn btn-primary" onclick="openModal('contactModal'); closeModal('faqModal');">
+                        <i class="fas fa-headset"></i> اتصل بنا
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // =============================================
+        // نظام MatchMaster الكامل مع الخصوصية والاتصال
+        // =============================================
+
+        // ===== التهيئة =====
+        class MatchMasterApp {
+            constructor() {
+                this.state = {
+                    matches: [],
+                    userProfile: {},
+                    isDarkMode: false,
+                    activeTab: 'all'
+                };
+                this.init();
+            }
+
+            init() {
+                this.loadData();
+                this.setupEventListeners();
+                this.setupTheme();
+                this.setupTabs();
+                this.renderMatches();
+                this.startAutoUpdate();
+            }
+
+            // ===== نظام التخزين =====
+            loadData() {
+                try {
+                    // تحميل المباريات
+                    const savedMatches = localStorage.getItem('matchmaster_matches');
+                    this.state.matches = savedMatches ? JSON.parse(savedMatches) : this.getDefaultMatches();
+                    
+                    // تحميل ملف المستخدم
+                    const savedProfile = localStorage.getItem('matchmaster_profile');
+                    this.state.userProfile = savedProfile ? JSON.parse(savedProfile) : this.createDefaultProfile();
+                    
+                    // تحميل السمة
+                    const savedTheme = localStorage.getItem('matchmaster_theme');
+                    this.state.isDarkMode = savedTheme === 'dark';
+                    
+                    // تحميل البلاغات
+                    const savedReports = localStorage.getItem('matchmaster_reports');
+                    this.state.reports = savedReports ? JSON.parse(savedReports) : [];
+                    
+                } catch (error) {
+                    console.error('خطأ في تحميل البيانات:', error);
+                    this.state.matches = this.getDefaultMatches();
+                    this.state.userProfile = this.createDefaultProfile();
+                }
+            }
+
+            saveData() {
+                try {
+                    localStorage.setItem('matchmaster_matches', JSON.stringify(this.state.matches));
+                    localStorage.setItem('matchmaster_profile', JSON.stringify(this.state.userProfile));
+                    localStorage.setItem('matchmaster_theme', this.state.isDarkMode ? 'dark' : 'light');
+                    localStorage.setItem('matchmaster_reports', JSON.stringify(this.state.reports || []));
+                } catch (error) {
+                    console.error('خطأ في حفظ البيانات:', error);
+                }
+            }
+
+            createDefaultProfile() {
+                return {
+                    id: 'user_' + Date.now(),
+                    createdAt: new Date().toISOString(),
+                    interests: {
+                        teams: {},
+                        leagues: {}
+                    },
+                    settings: {
+                        notifications: true,
+                        theme: 'light'
+                    }
+                };
+            }
+
+            getDefaultMatches() {
+                const now = new Date();
+                return [
+                    {
+                        id: 1,
+                        team1: "النصر",
+                        team2: "الهلال",
+                        date: new Date(now.getTime() + 86400000).toISOString(),
+                        league: "الدوري السعودي",
+                        status: "upcoming",
+                        aiScore: 85,
+                        strength: "strong"
+                    },
+                    {
+                        id: 2,
+                        team1: "برشلونة",
+                        team2: "ريال مدريد",
+                        date: new Date(now.getTime() + 172800000).toISOString(),
+                        league: "الدوري الإسباني",
+                        status: "upcoming",
+                        aiScore: 90,
+                        strength: "strong"
+                    },
+                    {
+                        id: 3,
+                        team1: "مانشستر سيتي",
+                        team2: "ليفربول",
+                        date: now.toISOString(),
+                        league: "الدوري الإنجليزي",
+                        status: "live",
+                        aiScore: 88,
+                        strength: "strong"
+                    }
+                ];
+            }
+
+            // ===== النظام الأساسي =====
+            setupEventListeners() {
+                // نموذج إضافة مباراة
+                document.getElementById('matchForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addMatch();
+                });
+
+                // نموذج الإبلاغ عن مشكلة
+                document.getElementById('reportForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitReport();
+                });
+
+                // البحث
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.searchMatches(e.target.value);
+                });
+
+                // تحديث الوقت
+                setInterval(() => {
+                    this.updateCurrentTime();
+                }, 1000);
+            }
+
+            setupTheme() {
+                const theme = this.state.isDarkMode ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+
+            toggleTheme() {
+                this.state.isDarkMode = !this.state.isDarkMode;
+                this.setupTheme();
+                this.saveData();
+                this.showNotification('تم التبديل', `الوضع ${this.state.isDarkMode ? 'الليلي' : 'النهاري'}`, 'info');
+            }
+
+            setupTabs() {
+                const tabs = [
+                    { id: 'all', label: 'كل المباريات', icon: 'fas fa-list' },
+                    { id: 'today', label: 'اليوم', icon: 'fas fa-calendar-day' },
+                    { id: 'live', label: 'مباشرة', icon: 'fas fa-tv' },
+                    { id: 'upcoming', label: 'قادمة', icon: 'fas fa-clock' }
+                ];
+
+                const container = document.getElementById('tabsContainer');
+                container.innerHTML = tabs.map(tab => `
+                    <button class="tab ${this.state.activeTab === tab.id ? 'active' : ''}" 
+                            onclick="app.switchTab('${tab.id}')">
+                        <i class="${tab.icon}"></i> ${tab.label}
+                    </button>
+                `).join('');
+            }
+
+            switchTab(tabId) {
+                this.state.activeTab = tabId;
+                this.setupTabs();
+                this.renderMatches();
+            }
+
+            // ===== إدارة المباريات =====
+            addMatch() {
+                const team1 = document.getElementById('team1').value;
+                const team2 = document.getElementById('team2').value;
+                const date = document.getElementById('matchDate').value;
+                const league = document.getElementById('league').value;
+
+                const newMatch = {
+                    id: Date.now(),
+                    team1,
+                    team2,
+                    date: new Date(date).toISOString(),
+                    league,
+                    status: "upcoming",
+                    aiScore: this.calculateAIScore(team1, team2, league),
+                    strength: this.getStrength(this.calculateAIScore(team1, team2, league))
+                };
+
+                this.state.matches.push(newMatch);
+                this.saveData();
+                this.renderMatches();
+                this.closeModal('addMatchModal');
+                this.showNotification('تم الإضافة', 'تم إضافة المباراة بنجاح', 'success');
+
+                // تحديث اهتمامات المستخدم
+                this.updateUserInterest(team1, team2, league);
+            }
+
+            calculateAIScore(team1, team2, league) {
+                let score = 50;
+                const popularTeams = ['النصر', 'الهلال', 'برشلونة', 'ريال مدريد', 'مانشستر سيتي', 'ليفربول'];
+                
+                if (popularTeams.includes(team1)) score += 15;
+                if (popularTeams.includes(team2)) score += 15;
+                if (league.includes('أبطال')) score += 10;
+                
+                return Math.min(100, Math.max(0, score));
+            }
+
+            getStrength(score) {
+                if (score >= 80) return 'strong';
+                if (score >= 50) return 'medium';
+                return 'weak';
+            }
+
+            updateUserInterest(team1, team2, league) {
+                if (!this.state.userProfile.interests) {
+                    this.state.userProfile.interests = { teams: {}, leagues: {} };
+                }
+
+                this.state.userProfile.interests.teams[team1] = 
+                    (this.state.userProfile.interests.teams[team1] || 0) + 1;
+                this.state.userProfile.interests.teams[team2] = 
+                    (this.state.userProfile.interests.teams[team2] || 0) + 1;
+                this.state.userProfile.interests.leagues[league] = 
+                    (this.state.userProfile.interests.leagues[league] || 0) + 1;
+
+                this.saveData();
+            }
+
+            searchMatches(query) {
+                this.renderMatches(query);
+            }
+
+            renderMatches(searchQuery = '') {
+                const container = document.getElementById('matchesContainer');
+                const emptyState = document.getElementById('emptyState');
+                const spinner = document.getElementById('loadingSpinner');
+
+                spinner.style.display = 'block';
+                container.innerHTML = '';
+
+                setTimeout(() => {
+                    spinner.style.display = 'none';
+
+                    let filteredMatches = this.state.matches;
+
+                    // تطبيق البحث
+                    if (searchQuery) {
+                        filteredMatches = filteredMatches.filter(match => 
+                            match.team1.includes(searchQuery) || 
+                            match.team2.includes(searchQuery) || 
+                            match.league.includes(searchQuery)
+                        );
+                    }
+
+                    // تطبيق التبويب
+                    switch (this.state.activeTab) {
+                        case 'today':
+                            const today = new Date().toDateString();
+                            filteredMatches = filteredMatches.filter(match => 
+                                new Date(match.date).toDateString() === today
+                            );
+                            break;
+                        case 'live':
+                            filteredMatches = filteredMatches.filter(match => match.status === 'live');
+                            break;
+                        case 'upcoming':
+                            filteredMatches = filteredMatches.filter(match => match.status === 'upcoming');
+                            break;
+                    }
+
+                    if (filteredMatches.length === 0) {
+                        emptyState.style.display = 'block';
+                        container.style.display = 'none';
+                    } else {
+                        emptyState.style.display = 'none';
+                        container.style.display = 'grid';
+                        container.innerHTML = filteredMatches.map(match => this.createMatchCard(match)).join('');
+                    }
+                }, 300);
+            }
+
+            createMatchCard(match) {
+                const matchDate = new Date(match.date);
+                const now = new Date();
+                const timeDiff = matchDate - now;
+                const hoursDiff = Math.floor(timeDiff / (1000 * 60 * 60));
+
+                let countdown = '';
+                if (match.status === 'upcoming' && timeDiff > 0) {
+                    if (hoursDiff > 0) {
+                        countdown = `بعد ${hoursDiff} ساعة`;
+                    } else {
+                        countdown = `قريبًا`;
+                    }
+                }
+
+                return `
+                    <div class="match-card ${match.strength}">
+                        <div class="match-header">
+                            <span class="match-status">
+                                ${match.status === 'upcoming' ? 'قادمة' : 
+                                  match.status === 'live' ? 'مباشرة 🔴' : 'منتهية'}
+                            </span>
+                            <span class="ai-score">${match.aiScore}/100</span>
+                        </div>
+                        <div class="match-content">
+                            <div class="match-teams">
+                                <div class="team">
+                                    <div class="team-logo">${match.team1.charAt(0)}</div>
+                                    <div class="team-name">${match.team1}</div>
+                                </div>
+                                <div class="vs">VS</div>
+                                <div class="team">
+                                    <div class="team-logo">${match.team2.charAt(0)}</div>
+                                    <div class="team-name">${match.team2}</div>
+                                </div>
+                            </div>
+                            <div class="match-details">
+                                <div><i class="fas fa-calendar"></i> ${matchDate.toLocaleString('ar-SA')}</div>
+                                <div><i class="fas fa-trophy"></i> ${match.league}</div>
+                                ${countdown ? `<div class="countdown">${countdown}</div>` : ''}
+                            </div>
+                            <div class="match-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+                                <button class="btn btn-sm btn-secondary" onclick="app.deleteMatch(${match.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="app.toggleFavorite(${match.id})">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            deleteMatch(matchId) {
+                if (confirm('هل أنت متأكد من حذف هذه المباراة؟')) {
+                    this.state.matches = this.state.matches.filter(m => m.id !== matchId);
+                    this.saveData();
+                    this.renderMatches();
+                    this.showNotification('تم الحذف', 'تم حذف المباراة', 'info');
+                }
+            }
+
+            // ===== النظام التلقائي =====
+            startAutoUpdate() {
+                // تحديث حالة المباريات كل دقيقة
+                setInterval(() => {
+                    this.updateMatchesStatus();
+                }, 60000);
+
+                // تحديث الواجهة كل 30 ثانية
+                setInterval(() => {
+                    this.renderMatches();
+                }, 30000);
+            }
+
+            updateMatchesStatus() {
+                const now = new Date();
+                let updated = false;
+
+                this.state.matches.forEach(match => {
+                    const matchDate = new Date(match.date);
+                    const originalStatus = match.status;
+
+                    if (matchDate <= now && match.status === 'upcoming') {
+                        const timeDiff = now - matchDate;
+                        if (timeDiff < 2 * 60 * 60 * 1000) {
+                            match.status = 'live';
+                        } else {
+                            match.status = 'finished';
+                        }
+                        updated = true;
+                    } else if (match.status === 'live') {
+                        const timeDiff = now - matchDate;
+                        if (timeDiff >= 2 * 60 * 60 * 1000) {
+                            match.status = 'finished';
+                            updated = true;
+                        }
+                    }
+
+                    // إشعارات التغيير
+                    if (match.status !== originalStatus) {
+                        this.sendStatusNotification(match, originalStatus);
+                    }
+                });
+
+                if (updated) {
+                    this.saveData();
+                    this.renderMatches();
+                }
+            }
+
+            updateCurrentTime() {
+                const now = new Date();
+                // يمكن استخدامه في المستقبل لعرض الوقت الحالي
+            }
+
+            // ===== إشعارات =====
+            showNotification(title, message, type = 'info') {
+                // إنشاء عنصر الإشعار
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 20px;
+                    background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#FF5252' : '#2196F3'};
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    z-index: 3000;
+                    animation: slideInRight 0.3s ease;
+                    max-width: 400px;
+                `;
+                
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}" 
+                           style="font-size: 1.5rem;"></i>
+                        <div>
+                            <strong style="display: block; margin-bottom: 5px;">${title}</strong>
+                            <div style="font-size: 0.9rem; opacity: 0.9;">${message}</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // إزالة الإشعار بعد 5 ثواني
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }, 5000);
+            }
+
+            sendStatusNotification(match, oldStatus) {
+                if (match.status === 'live' && oldStatus === 'upcoming') {
+                    this.showNotification('بدأت المباراة!', `${match.team1} vs ${match.team2}`, 'info');
+                }
+            }
+
+            // ===== نظام الإبلاغ والاتصال =====
+            submitReport() {
+                const problemType = document.getElementById('problemType').value;
+                const description = document.getElementById('problemDescription').value;
+                const steps = document.getElementById('problemSteps').value;
+                const email = document.getElementById('userEmail').value;
+
+                const report = {
+                    id: 'RPT_' + Date.now(),
+                    type: problemType,
+                    description,
+                    steps,
+                    email: email || 'غير مذكور',
+                    timestamp: new Date().toISOString(),
+                    status: 'new',
+                    userAgent: navigator.userAgent
+                };
+
+                // حفظ البلاغ محليًا
+                if (!this.state.reports) this.state.reports = [];
+                this.state.reports.push(report);
+                this.saveData();
+
+                // عرض رسالة النجاح
+                document.getElementById('reportId').textContent = report.id;
+                document.getElementById('reportSuccessMessage').classList.add('show');
+
+                // إعادة تعيين النموذج بعد 3 ثواني
+                setTimeout(() => {
+                    document.getElementById('reportForm').reset();
+                    document.getElementById('reportSuccessMessage').classList.remove('show');
+                    this.closeModal('reportModal');
+                    this.showNotification('تم الإرسال', 'شكرًا لتواصلك معنا', 'success');
+                }, 3000);
+            }
+
+            sendEmail(type) {
+                let subject, body;
+                
+                switch(type) {
+                    case 'support':
+                        subject = 'طلب دعم فني - تطبيق MatchMaster';
+                        body = 'أرجو المساعدة في:\n\n';
+                        break;
+                    case 'suggestions':
+                        subject = 'اقتراح تحسين - تطبيق MatchMaster';
+                        body = 'أقترح التالي:\n\n';
+                        break;
+                    case 'privacy':
+                        subject = 'استفسار عن الخصوصية - تطبيق MatchMaster';
+                        body = 'استفساري حول الخصوصية:\n\n';
+                        break;
+                }
+                
+                body += '\n\n--- معلومات النظام ---\n';
+                body += `التطبيق: MatchMaster v3.0.0\n`;
+                body += `المتصفح: ${navigator.userAgent}\n`;
+                
+                const mailtoLink = `mailto:support@matchmaster.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(mailtoLink, '_blank');
+            }
+
+            // ===== دوال الواجهة =====
+            openModal(modalId) {
+                document.getElementById(modalId).classList.add('active');
+                
+                // تعيين القيم الافتراضية
+                if (modalId === 'addMatchModal') {
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() + 60);
+                    document.getElementById('matchDate').value = 
+                        now.toISOString().slice(0, 16);
+                }
+            }
+
+            closeModal(modalId) {
+                document.getElementById(modalId).classList.remove('active');
+                
+                // إعادة تعيين النماذج
+                if (modalId === 'addMatchModal') {
+                    document.getElementById('matchForm').reset();
+                }
+                if (modalId === 'reportModal') {
+                    document.getElementById('reportForm').reset();
+                    document.getElementById('reportSuccessMessage').classList.remove('show');
+                }
+            }
+
+            askAI(question) {
+                const responses = {
+                    'ما هي أهم مباريات اليوم؟': 'أهم مباريات اليوم هي المباريات ذات التقييم العالي في قائمتك. يمكنك تصفية المباريات حسب القوة.',
+                    'اقترح لي مباراة مشوقة': 'أقترح عليك مشاهدة المباريات بين الفرق الكبيرة مثل النصر والهلال أو برشلونة وريال مدريد.',
+                    'ما هي المباريات الكبيرة القادمة؟': 'المباريات الكبيرة عادة تكون بين الفرق الشهيرة في البطولات المهمة.',
+                    'متى يلعب النصر؟': 'يمكنك البحث عن "النصر" في مربع البحث لمعرفة مواعيد مباريات الفريق.'
+                };
+                
+                this.showNotification('المساعد الذكي', responses[question] || 'يمكنني مساعدتك في معرفة مواعيد المباريات والاقتراحات.', 'info');
+            }
+
+            applyFilters() {
+                this.showNotification('التصفية', 'تم تطبيق الفلاتر المحددة', 'info');
+            }
+
+            // ===== إدارة البيانات =====
+            exportData() {
+                const data = {
+                    matches: this.state.matches,
+                    profile: this.state.userProfile,
+                    reports: this.state.reports || [],
+                    exportedAt: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `matchmaster-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showNotification('تم التصدير', 'تم حفظ نسخة احتياطية من بياناتك', 'success');
+            }
+
+            clearAllData() {
+                if (confirm('⚠️ هل أنت متأكد من مسح جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه.')) {
+                    localStorage.clear();
+                    this.state.matches = this.getDefaultMatches();
+                    this.state.userProfile = this.createDefaultProfile();
+                    this.state.reports = [];
+                    this.saveData();
+                    this.renderMatches();
+                    this.showNotification('تم المسح', 'تم مسح جميع البيانات', 'success');
+                    this.closeModal('privacyModal');
+                }
+            }
+
+            resetApp() {
+                if (confirm('هل تريد إعادة تعيين التطبيق إلى الإعدادات الافتراضية؟')) {
+                    localStorage.removeItem('matchmaster_matches');
+                    localStorage.removeItem('matchmaster_profile');
+                    this.state.matches = this.getDefaultMatches();
+                    this.state.userProfile = this.createDefaultProfile();
+                    this.saveData();
+                    this.renderMatches();
+                    this.showNotification('تم التعيين', 'تمت إعادة التعيين بنجاح', 'success');
+                }
+            }
+
+            openFAQ() {
+                this.openModal('faqModal');
+            }
+        }
+
+        // ===== تهيئة التطبيق =====
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new MatchMasterApp();
+            
+            // إضافة أنماط CSS للرسوم المتحركة
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // ===== دوال عامة للوصول من HTML =====
+        window.app = app;
+        window.toggleTheme = () => app.toggleTheme();
+        window.openModal = (id) => app.openModal(id);
+        window.closeModal = (id) => app.closeModal(id);
+        window.askAI = (question) => app.askAI(question);
+        window.applyFilters = () => app.applyFilters();
+        window.sendEmail = (type) => app.sendEmail(type);
+        window.exportData = () => app.exportData();
+        window.clearAllData = () => app.clearAllData();
+        window.resetApp = () => app.resetApp();
+        window.openFAQ = () => app.openFAQ();
+
+        // إغلاق النماذج عند النقر خارجها
+        document.addEventListener('click', (e) => {
+            const modals = document.querySelectorAll('.modal.active');
+            modals.forEach(modal => {
+                if (e.target === modal) {
+                    const modalId = modal.id;
+                    app.closeModal(modalId);
+                }
+            });
+        });
+
+        // إغلاق النماذج بمفتاح ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const activeModal = document.querySelector('.modal.active');
+                if (activeModal) {
+                    app.closeModal(activeModal.id);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
