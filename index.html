@@ -722,7 +722,7 @@
         <i class="fas fa-futbol" style="font-size: 3rem; margin-bottom: 15px; color: var(--gray);"></i>
         <h3 style="margin-bottom: 10px;">لا توجد مباريات في هذا الوقت</h3>
         <p style="color: var(--gray); margin-bottom: 20px;">تظهر المباريات الجديدة تلقائيًا</p>
-        <button class="fab" onclick="FootballApp.refreshMatches()" style="margin: 0 auto; width: 50px; height: 50px;">
+        <button class="fab" onclick="window.FootballApp.refreshMatches()" style="margin: 0 auto; width: 50px; height: 50px;">
             <i class="fas fa-sync-alt"></i>
         </button>
     </div>
@@ -732,50 +732,48 @@
         <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px; color: var(--danger);"></i>
         <h3 style="margin-bottom: 10px;">حدث خطأ في التحميل</h3>
         <p style="color: var(--gray); margin-bottom: 20px;">جاري استخدام البيانات المخزنة</p>
-        <button class="fab" onclick="FootballApp.refreshMatches()" style="margin: 0 auto; width: 50px; height: 50px;">
+        <button class="fab" onclick="window.FootballApp.refreshMatches()" style="margin: 0 auto; width: 50px; height: 50px;">
             <i class="fas fa-redo"></i>
         </button>
     </div>
 
     <!-- FAB Buttons -->
     <div class="fab-container">
-        <button class="fab" onclick="FootballApp.refreshMatches()" title="تحديث المباريات">
+        <button class="fab" onclick="window.FootballApp.refreshMatches()" title="تحديث المباريات">
             <i class="fas fa-sync-alt"></i>
         </button>
-        <button class="fab" onclick="FootballApp.showLiveMatches()" title="المباريات المباشرة">
+        <button class="fab" onclick="window.FootballApp.showLiveMatches()" title="المباريات المباشرة">
             <i class="fas fa-tv"></i>
         </button>
-        <button class="fab" onclick="FootballApp.scrollToTop()" title="الانتقال للأعلى">
+        <button class="fab" onclick="window.FootballApp.scrollToTop()" title="الانتقال للأعلى">
             <i class="fas fa-arrow-up"></i>
         </button>
     </div>
 
     <script>
         // =============================================
-        // FootballApp - Ultimate Version
-        // الإصدار النهائي مع جميع الإصلاحات والأمان
+        // FootballApp - الإصدار النهائي المصحح
+        // مع جميع الإصلاحات والتعديلات
         // =============================================
 
         class FootballApp {
             constructor() {
                 this.config = {
-                    // 🔒 إعدادات الـ Proxy - اختر أحد الخيارات:
-                    PROXY_URL: 'https://football-proxy-production.up.railway.app/api', // مثال لـ Railway
-                    // أو: 'https://your-worker.workers.dev/api' لـ Cloudflare Worker
-                    // أو: 'https://your-proxy.onrender.com/api' لـ Render
+                    // 🔒 رابط Render الخاص بك
+                    PROXY_URL: 'https://football-matches-ai-1.onrender.com',
                     
-                    // ⚠️ استخدم الخيار 2 إذا لم يكن لديك proxy:
-                    USE_DIRECT_API: false, // ضع true للاستخدام المباشر (غير آمن)
-                    DIRECT_API_KEY: '', // اتركه فارغًا للحماية
+                    // ⚠️ التأكد من تعطيل API المباشر للأمان
+                    USE_DIRECT_API: false,
+                    DIRECT_API_KEY: '',
                     
                     // 🕒 إعدادات النظام
-                    API_TIMEOUT: 7000,
+                    API_TIMEOUT: 10000,
                     UPDATE_INTERVAL: 30000,
                     MAX_LOADING_TIME: 5000,
                     CACHE_DURATION: 15 * 60 * 1000,
                     OFFLINE_UPDATE_INTERVAL: 60000,
                     
-                    VERSION: '6.1.0'
+                    VERSION: '6.2.0'
                 };
 
                 this.state = {
@@ -804,7 +802,7 @@
                     // التتبع
                     lastUpdate: null,
                     updateCount: 0,
-                    dataSource: 'unknown', // 'proxy', 'direct', 'cache', 'emergency'
+                    dataSource: 'unknown',
                     
                     // الموقتات
                     loadingTimeout: null,
@@ -818,7 +816,8 @@
             }
 
             async initialize() {
-                console.log('🚀 بدء FootScore Pro - الإصدار النهائي...');
+                console.log('🚀 بدء FootScore Pro - الإصدار المصحح...');
+                console.log('🔗 رابط Proxy:', this.config.PROXY_URL);
                 
                 // 1. إظهار الواجهة فورًا
                 this.showUI();
@@ -836,9 +835,8 @@
                 this.startAutoUpdates();
             }
 
-            // ========== FAIL-SAFE SYSTEM ==========
+            // ========== نظام الفشل الآمن ==========
             showUI() {
-                // إظهار الواجهة في 500ms
                 setTimeout(() => {
                     document.getElementById('skeletonLoading').style.display = 'none';
                     document.getElementById('matchesContainer').style.display = 'grid';
@@ -865,7 +863,7 @@
                 this.hideError();
             }
 
-            // ========== DATA FETCHING - MULTI-LAYER ==========
+            // ========== جلب البيانات متعدد الطبقات ==========
             async fetchDataWithFallback() {
                 this.state.isLoading = true;
                 
@@ -873,6 +871,7 @@
                     // المحاولة 1: الـ Proxy (آمن)
                     if (!this.config.USE_DIRECT_API) {
                         try {
+                            console.log('🔍 محاولة جلب البيانات من Proxy...');
                             const proxyData = await this.fetchFromProxy();
                             if (proxyData && proxyData.length > 0) {
                                 await this.processData(proxyData, 'proxy');
@@ -883,20 +882,7 @@
                         }
                     }
                     
-                    // المحاولة 2: API المباشر (فقط إذا مُنشط)
-                    if (this.config.USE_DIRECT_API && this.state.isOnline) {
-                        try {
-                            const apiData = await this.fetchDirectAPI();
-                            if (apiData && apiData.length > 0) {
-                                await this.processData(apiData, 'direct');
-                                return;
-                            }
-                        } catch (apiError) {
-                            console.warn('⚠️ فشل API المباشر:', apiError.message);
-                        }
-                    }
-                    
-                    // المحاولة 3: البيانات المخزنة
+                    // المحاولة 2: البيانات المخزنة
                     const cachedData = this.loadCachedData();
                     if (cachedData && cachedData.length > 0) {
                         await this.processData(cachedData, 'cache');
@@ -904,7 +890,7 @@
                         return;
                     }
                     
-                    // المحاولة 4: البيانات الطارئة
+                    // المحاولة 3: البيانات الطارئة
                     throw new Error('لا توجد بيانات متاحة');
                     
                 } catch (error) {
@@ -918,7 +904,7 @@
                 }
             }
 
-            // ========== PROXY FETCH (الأمان الأول) ==========
+            // ========== جلب البيانات من Proxy ==========
             async fetchFromProxy() {
                 if (!this.state.isOnline) {
                     throw new Error('لا يوجد اتصال بالإنترنت');
@@ -950,11 +936,19 @@
                         signal: this.state.apiController.signal,
                         headers: {
                             'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        }
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        mode: 'cors'
                     });
                     
                     clearTimeout(timeoutId);
+                    
+                    console.log('📡 استجابة Proxy:', {
+                        status: response.status,
+                        ok: response.ok,
+                        url: response.url
+                    });
                     
                     if (!response.ok) {
                         throw new Error(`Proxy Error: ${response.status}`);
@@ -967,12 +961,18 @@
                         throw new Error(data.message || 'خطأ في Proxy');
                     }
                     
-                    if (!data.response || !Array.isArray(data.response)) {
-                        throw new Error('بيانات غير صالحة من Proxy');
+                    // دعم تنسيقات مختلفة من الـ Proxy
+                    let matchesArray = data.response || data;
+                    if (!Array.isArray(matchesArray)) {
+                        matchesArray = [];
+                    }
+                    
+                    if (matchesArray.length === 0) {
+                        console.log('⚠️ لا توجد مباريات من Proxy');
                     }
                     
                     // تحويل البيانات
-                    const matches = this.transformAPIData(data.response);
+                    const matches = this.transformAPIData(matchesArray);
                     
                     this.state.proxyErrorCount = 0;
                     console.log(`✅ تم جلب ${matches.length} مباراة من Proxy`);
@@ -994,77 +994,16 @@
                 }
             }
 
-            // ========== DIRECT API FETCH (للطوارئ فقط) ==========
-            async fetchDirectAPI() {
-                if (!this.state.isOnline) {
-                    throw new Error('لا يوجد اتصال بالإنترنت');
-                }
-                
-                if (this.state.apiErrorCount >= this.state.maxApiErrors) {
-                    throw new Error('تجاوز الحد الأقصى لأخطاء API');
-                }
-                
-                if (!this.config.USE_DIRECT_API || !this.config.DIRECT_API_KEY) {
-                    throw new Error('API المباشر غير مفعل');
-                }
-                
-                this.state.apiController = new AbortController();
-                const timeoutId = setTimeout(() => {
-                    this.state.apiController.abort();
-                }, this.config.API_TIMEOUT);
-                
-                try {
-                    const today = new Date().toISOString().split('T')[0];
-                    const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?date=${today}`;
-                    
-                    console.log('⚠️ جلب البيانات مباشرة من API (غير آمن)');
-                    
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        signal: this.state.apiController.signal,
-                        headers: {
-                            'X-RapidAPI-Key': this.config.DIRECT_API_KEY,
-                            'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-                        }
-                    });
-                    
-                    clearTimeout(timeoutId);
-                    
-                    if (!response.ok) {
-                        throw new Error(`API Error: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    
-                    if (!data.response || !Array.isArray(data.response)) {
-                        throw new Error('بيانات API غير صالحة');
-                    }
-                    
-                    const matches = this.transformAPIData(data.response);
-                    
-                    this.state.apiErrorCount = 0;
-                    console.log(`✅ تم جلب ${matches.length} مباراة مباشرة من API`);
-                    
-                    return matches;
-                    
-                } catch (error) {
-                    clearTimeout(timeoutId);
-                    
-                    if (error.name === 'AbortError') {
-                        console.warn('⏰ انتهت مهلة API');
-                    } else {
-                        console.error('❌ خطأ في API المباشر:', error.message);
-                        this.state.apiErrorCount++;
-                    }
-                    
-                    throw error;
-                }
-            }
-
-            // ========== DATA TRANSFORMATION ==========
+            // ========== تحويل بيانات API ==========
             transformAPIData(apiMatches) {
                 const transformed = [];
                 const now = new Date();
+                
+                // إذا كانت بيانات من Render مباشرة (ليست من API-Football)
+                if (apiMatches.length > 0 && apiMatches[0].fixture === undefined) {
+                    console.log('📊 معالجة بيانات Render المباشرة');
+                    return apiMatches;
+                }
                 
                 for (const match of apiMatches) {
                     try {
@@ -1119,7 +1058,7 @@
                     }
                 }
                 
-                // 🔧 الإصلاح: إضافة مباريات افتراضية إذا كانت القائمة فارغة
+                // إضافة مباريات افتراضية إذا كانت القائمة فارغة
                 if (transformed.length === 0) {
                     console.warn('⚠️ لا توجد مباريات من API، إضافة بيانات افتراضية...');
                     transformed.push(...this.generateFallbackMatches(now));
@@ -1128,57 +1067,63 @@
                 return transformed;
             }
 
-            // ========== FALLBACK DATA GENERATION ==========
+            // ========== توليد بيانات احتياطية ==========
             generateFallbackMatches(now) {
                 const fallbackMatches = [
                     {
+                        id: '1',
                         team1: 'الهلال',
                         team2: 'النصر',
                         league: 'الدوري السعودي',
                         country: 'السعودية',
+                        date: new Date(now.getTime() + 3600000),
                         status: 'upcoming',
-                        importance: 95
+                        score: null,
+                        minute: null,
+                        venue: 'ملعب الملك فهد',
+                        importance: 95,
+                        isLive: false,
+                        isFinished: false,
+                        isUpcoming: true,
+                        logo: '🇸🇦'
                     },
                     {
+                        id: '2',
                         team1: 'ريال مدريد',
                         team2: 'برشلونة',
                         league: 'الدوري الإسباني',
                         country: 'إسبانيا',
+                        date: new Date(now.getTime() + 7200000),
                         status: 'upcoming',
-                        importance: 98
+                        score: null,
+                        minute: null,
+                        venue: 'كامب نو',
+                        importance: 98,
+                        isLive: false,
+                        isFinished: false,
+                        isUpcoming: true,
+                        logo: '🇪🇸'
                     },
                     {
+                        id: '3',
                         team1: 'مانشستر سيتي',
                         team2: 'ليفربول',
                         league: 'الدوري الإنجليزي',
                         country: 'إنجلترا',
+                        date: new Date(),
                         status: 'live',
-                        importance: 96
+                        score: '2-1',
+                        minute: 65,
+                        venue: 'اليتihad Stadium',
+                        importance: 96,
+                        isLive: true,
+                        isFinished: false,
+                        isUpcoming: false,
+                        logo: '🏴󠁧󠁢󠁥󠁮󠁧󠁿'
                     }
                 ];
                 
-                return fallbackMatches.map((match, index) => {
-                    const hoursOffset = index * 4;
-                    const matchTime = new Date(now.getTime() + (hoursOffset * 60 * 60 * 1000));
-                    
-                    return {
-                        id: `fallback_${index}`,
-                        team1: match.team1,
-                        team2: match.team2,
-                        league: match.league,
-                        country: match.country,
-                        date: matchTime,
-                        status: match.status,
-                        score: match.status === 'live' ? '1-1' : null,
-                        minute: match.status === 'live' ? 65 : null,
-                        venue: 'الملعب الرئيسي',
-                        importance: match.importance,
-                        isLive: match.status === 'live',
-                        isFinished: false,
-                        isUpcoming: match.status === 'upcoming',
-                        logo: this.getLeagueLogo(match.league)
-                    };
-                });
+                return fallbackMatches;
             }
 
             loadEmergencyData() {
@@ -1189,14 +1134,14 @@
                 const now = new Date();
                 const matches = this.generateFallbackMatches(now);
                 
-                // 🔧 الإصلاح: عند استخدام بيانات الطوارئ، نغير الفلتر إلى "all" تلقائيًا
+                // تغيير الفلتر إلى "all" تلقائيًا
                 this.state.timeFilter = 'all';
                 this.processData(matches, 'emergency');
                 
                 this.showNotification('بيانات تجريبية', 'جاري عرض بيانات للتجربة', 'warning');
             }
 
-            // ========== SMART DATA PROCESSING ==========
+            // ========== معالجة البيانات الذكية ==========
             async processData(matches, source) {
                 console.log(`📊 معالجة البيانات (${source}):`, matches.length);
                 
@@ -1218,7 +1163,7 @@
                 // حفظ في التخزين المحلي
                 this.saveToStorage();
                 
-                // 🔧 الإصلاح: الفلترة الذكية لمنع الشاشة الفارغة
+                // الفلترة الذكية
                 this.smartFilterData();
                 
                 // تحديث الواجهة
@@ -1231,12 +1176,10 @@
                 this.showDataSourceNotification(source);
             }
 
-            // ========== SMART FILTER SYSTEM - FIXED ==========
+            // ========== نظام الفلترة الذكية ==========
             smartFilterData() {
-                // حفظ الفلتر الأصلي
                 const originalFilter = this.state.timeFilter;
                 
-                // إذا كانت بيانات طوارئ، نستخدم "all" مباشرة
                 if (this.state.isEmergencyData && originalFilter !== 'all') {
                     this.state.timeFilter = 'all';
                     this.showNotification('عرض جميع المباريات', 'بسبب بيانات الطوارئ', 'info');
@@ -1245,18 +1188,15 @@
                 // محاولة التطبيق الأولي
                 this.applyFilters();
                 
-                // 🔧 الإصلاح: إذا كانت النتائج فارغة، نبحث عن فلتر مناسب
                 if (this.state.filteredMatches.length === 0 && this.state.timeFilter !== 'all') {
                     console.warn(`⚠️ الفلتر "${this.state.timeFilter}" يعطي 0 نتيجة`);
                     
-                    // البحث عن فلتر يعطي نتائج
                     const foundFilter = this.findWorkingFilter();
                     
                     if (foundFilter) {
                         this.state.timeFilter = foundFilter;
                         this.applyFilters();
                         
-                        // إشعار المستخدم
                         if (originalFilter !== foundFilter) {
                             this.showNotification(
                                 'تم تغيير الفلتر تلقائيًا',
@@ -1267,7 +1207,6 @@
                     }
                 }
                 
-                // 🔧 الإصلاح النهائي: إذا ما زالت فارغة، نستخدم "all"
                 if (this.state.filteredMatches.length === 0) {
                     console.warn('⚠️ جميع الفلاتر تعطي 0 نتيجة، استخدام "all"');
                     this.state.timeFilter = 'all';
@@ -1281,7 +1220,6 @@
                 for (const filter of filterOrder) {
                     if (filter === this.state.timeFilter) continue;
                     
-                    // تجربة الفلتر
                     const tempFilter = this.state.timeFilter;
                     this.state.timeFilter = filter;
                     this.applyFilters();
@@ -1291,17 +1229,15 @@
                         return filter;
                     }
                     
-                    // التراجع
                     this.state.timeFilter = tempFilter;
                 }
                 
-                return 'all'; // الافتراضي
+                return 'all';
             }
 
             applyFilters() {
                 let filtered = [...this.state.matches];
                 
-                // 🔧 الإصلاح: فلتر "all" لا يطبق أي تصفية زمنية
                 if (this.state.timeFilter !== 'all') {
                     const now = new Date();
                     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1332,32 +1268,26 @@
                     }
                 }
                 
-                // تصفية الدوري
                 if (this.state.leagueFilter !== 'all') {
                     filtered = filtered.filter(m => m.league === this.state.leagueFilter);
                 }
                 
-                // ترتيب البيانات
                 filtered.sort((a, b) => {
-                    // مباشر أولاً
                     if (a.isLive && !b.isLive) return -1;
                     if (!a.isLive && b.isLive) return 1;
                     
-                    // ثم قادمة
                     if (a.isUpcoming && !b.isUpcoming) return -1;
                     if (!a.isUpcoming && b.isUpcoming) return 1;
                     
-                    // ثم حسب الأهمية
                     if (a.importance !== b.importance) return b.importance - a.importance;
                     
-                    // ثم حسب التاريخ
                     return new Date(a.date) - new Date(b.date);
                 });
                 
                 this.state.filteredMatches = filtered;
             }
 
-            // ========== UI UPDATES ==========
+            // ========== تحديثات الواجهة ==========
             updateUI() {
                 this.updateStats();
                 this.renderMatches();
@@ -1368,13 +1298,11 @@
                 const liveCount = this.state.matches.filter(m => m.isLive).length;
                 const totalFiltered = this.state.filteredMatches.length;
                 
-                // 🔧 الإصلاح: عرض 0 فقط إذا كان هناك بيانات
                 document.getElementById('totalMatches').textContent = totalFiltered || 0;
                 document.getElementById('liveMatches').textContent = liveCount || 0;
                 document.getElementById('leaguesCount').textContent = this.state.leagues.size || 0;
                 document.getElementById('liveMatchesCount').textContent = liveCount || 0;
                 
-                // تحديث وقت التحديث
                 if (this.state.lastUpdate) {
                     const diff = Math.floor((Date.now() - this.state.lastUpdate) / 60000);
                     document.getElementById('updateTime').textContent = 
@@ -1389,13 +1317,11 @@
                 const emptyState = document.getElementById('emptyState');
                 const errorState = document.getElementById('errorState');
                 
-                // 🔧 الإصلاح: عرض رسالة ذكية عند عدم وجود مباريات
                 if (this.state.filteredMatches.length === 0) {
                     container.innerHTML = '';
                     emptyState.style.display = 'block';
                     errorState.style.display = 'none';
                     
-                    // تحديث نص الرسالة
                     const emptyText = document.querySelector('#emptyState h3');
                     if (emptyText) {
                         if (this.state.matches.length === 0) {
@@ -1410,7 +1336,6 @@
                 emptyState.style.display = 'none';
                 errorState.style.display = 'none';
                 
-                // عرض المباريات
                 container.innerHTML = this.state.filteredMatches.map(match => `
                     <div class="match-card ${match.status} ${match.importance > 85 ? 'important' : ''}">
                         <div class="match-header">
@@ -1475,7 +1400,7 @@
                 `).join('');
             }
 
-            // ========== HELPER FUNCTIONS ==========
+            // ========== دوال مساعدة ==========
             getLeagueLogo(leagueName) {
                 const logos = {
                     'Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
@@ -1547,7 +1472,7 @@
                 return labels[filter] || filter;
             }
 
-            // ========== FILTER CONTROLS ==========
+            // ========== عناصر التحكم في الفلاتر ==========
             updateFilters() {
                 this.updateTimeFilter();
                 this.updateLeagueFilter();
@@ -1564,7 +1489,7 @@
                 const container = document.getElementById('timeFilter');
                 container.innerHTML = filters.map(filter => `
                     <button class="time-btn ${this.state.timeFilter === filter.id ? 'active' : ''}" 
-                            onclick="FootballApp.setTimeFilter('${filter.id}')">
+                            onclick="window.FootballApp.setTimeFilter('${filter.id}')">
                         ${filter.label}
                     </button>
                 `).join('');
@@ -1576,13 +1501,13 @@
                 const container = document.getElementById('leagueFilter');
                 container.innerHTML = leagues.slice(0, 8).map(league => `
                     <button class="league-btn ${this.state.leagueFilter === league ? 'active' : ''}" 
-                            onclick="FootballApp.setLeagueFilter('${league}')">
+                            onclick="window.FootballApp.setLeagueFilter('${league}')">
                         ${league === 'all' ? 'جميع الدوريات' : league}
                     </button>
                 `).join('');
             }
 
-            // ========== STORAGE ==========
+            // ========== التخزين ==========
             saveToStorage() {
                 try {
                     const data = {
@@ -1607,21 +1532,17 @@
                     
                     const parsed = JSON.parse(data);
                     
-                    // التحقق من الإصدار
                     if (parsed.version !== this.config.VERSION) return null;
                     
-                    // التحقق من الصلاحية
                     if (!parsed.lastUpdate) return null;
                     
                     const expiryTime = new Date(parsed.lastUpdate).getTime() + this.config.CACHE_DURATION;
                     if (Date.now() > expiryTime) return null;
                     
-                    // استعادة الفلاتر
                     if (parsed.timeFilter) this.state.timeFilter = parsed.timeFilter;
                     if (parsed.leagueFilter) this.state.leagueFilter = parsed.leagueFilter;
                     if (parsed.dataSource) this.state.dataSource = parsed.dataSource;
                     
-                    // تحويل التواريخ
                     const matches = parsed.matches.map(match => ({
                         ...match,
                         date: new Date(match.date)
@@ -1636,7 +1557,7 @@
                 }
             }
 
-            // ========== EVENT HANDLERS ==========
+            // ========== معالجات الأحداث ==========
             setupEventListeners() {
                 window.addEventListener('online', () => {
                     this.state.isOnline = true;
@@ -1657,12 +1578,11 @@
                 });
             }
 
-            // ========== PUBLIC METHODS ==========
+            // ========== طرق عامة ==========
             setTimeFilter(filter) {
                 const oldFilter = this.state.timeFilter;
                 this.state.timeFilter = filter;
                 
-                // إعادة تعيين حالة الطوارئ إذا تغير الفلتر يدويًا
                 if (this.state.isEmergencyData) {
                     this.state.isEmergencyData = false;
                 }
@@ -1705,7 +1625,7 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
-            // ========== UTILITIES ==========
+            // ========== أدوات مساعدة ==========
             hideLoading() {
                 document.getElementById('skeletonLoading').style.display = 'none';
             }
@@ -1714,7 +1634,7 @@
                 document.getElementById('errorState').style.display = 'none';
             }
 
-            // ========== AUTO UPDATES ==========
+            // ========== التحديثات التلقائية ==========
             startAutoUpdates() {
                 clearInterval(this.state.updateTimer);
                 
@@ -1729,7 +1649,7 @@
                 }, interval);
             }
 
-            // ========== NOTIFICATIONS ==========
+            // ========== الإشعارات ==========
             showDataSourceNotification(source) {
                 const messages = {
                     'proxy': ['تم التحديث', 'بيانات آمنة من Proxy', 'success'],
@@ -1793,11 +1713,10 @@
             }
         }
 
-        // ========== INITIALIZE ==========
-        let FootballApp;
+        // ========== التهيئة ==========
         document.addEventListener('DOMContentLoaded', () => {
-            FootballApp = new FootballApp();
-            window.FootballApp = FootballApp;
+            const app = new FootballApp();
+            window.FootballApp = app;
         });
     </script>
 </body>
