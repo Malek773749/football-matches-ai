@@ -674,42 +674,7 @@
 
     <!-- Skeleton Loading -->
     <div class="skeleton-container" id="skeletonLoading">
-        <div class="skeleton-card">
-            <div class="skeleton-header">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="skeleton-circle"></div>
-                    <div style="flex: 1;">
-                        <div class="skeleton-text medium"></div>
-                        <div class="skeleton-text small"></div>
-                    </div>
-                </div>
-                <div class="skeleton-text small"></div>
-            </div>
-            <div class="skeleton-body">
-                <div class="skeleton-team">
-                    <div class="skeleton-logo"></div>
-                    <div style="flex: 1;">
-                        <div class="skeleton-text large"></div>
-                    </div>
-                </div>
-                <div style="text-align: center; margin: 20px 0;">
-                    <div class="skeleton-text medium" style="margin: 0 auto 10px;"></div>
-                    <div class="skeleton-text small" style="margin: 0 auto;"></div>
-                </div>
-                <div class="skeleton-team">
-                    <div style="flex: 1;">
-                        <div class="skeleton-text large"></div>
-                    </div>
-                    <div class="skeleton-logo"></div>
-                </div>
-            </div>
-        </div>
-        <!-- تكرار الهيكل العظمي -->
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
+        <!-- الهيكل العظمي -->
     </div>
 
     <!-- Matches Grid -->
@@ -751,204 +716,145 @@
     </div>
 
     <script>
-        // =============================================
-        // FootballApp - الإصدار النهائي المصحح
-        // مع جميع الإصلاحات والتعديلات
-        // =============================================
-
         class FootballApp {
             constructor() {
                 this.config = {
-                    // 🔒 رابط Render الخاص بك
-                    PROXY_URL: 'https://football-matches-ai-1.onrender.com',
-                    
-                    // ⚠️ التأكد من تعطيل API المباشر للأمان
-                    USE_DIRECT_API: false,
-                    DIRECT_API_KEY: '',
+                    // 🔗 رابط الـ Proxy الخاص بك على Render
+                    PROXY_URL: 'https://football-matches-ai-1.onrender.com/fixtures',
                     
                     // 🕒 إعدادات النظام
                     API_TIMEOUT: 10000,
-                    UPDATE_INTERVAL: 30000,
-                    MAX_LOADING_TIME: 5000,
-                    CACHE_DURATION: 15 * 60 * 1000,
-                    OFFLINE_UPDATE_INTERVAL: 60000,
+                    UPDATE_INTERVAL: 60000, // دقيقة واحدة
+                    CACHE_DURATION: 30 * 60 * 1000, // 30 دقيقة
                     
-                    VERSION: '6.2.0'
+                    VERSION: '8.0.0'
                 };
 
                 this.state = {
-                    // حالة النظام
-                    isOnline: navigator.onLine,
-                    isLoading: false,
-                    isForced: false,
-                    isEmergencyData: false,
-                    
-                    // إدارة الأخطاء
-                    apiErrorCount: 0,
-                    maxApiErrors: 3,
-                    proxyErrorCount: 0,
-                    maxProxyErrors: 3,
-                    
-                    // البيانات
                     matches: [],
                     filteredMatches: [],
                     leagues: new Set(),
-                    countries: new Set(),
-                    
-                    // الفلاتر
-                    timeFilter: 'today',
+                    timeFilter: 'all',
                     leagueFilter: 'all',
-                    
-                    // التتبع
+                    isLoading: false,
                     lastUpdate: null,
-                    updateCount: 0,
-                    dataSource: 'unknown',
-                    
-                    // الموقتات
-                    loadingTimeout: null,
-                    updateTimer: null,
-                    forceTimer: null,
-                    apiController: null
+                    dataSource: 'none',
+                    isOnline: navigator.onLine
                 };
 
-                // تهيئة فورية
                 this.initialize();
             }
 
             async initialize() {
-                console.log('🚀 بدء FootScore Pro - الإصدار المصحح...');
-                console.log('🔗 رابط Proxy:', this.config.PROXY_URL);
+                console.log('🚀 بدء FootScore Pro...');
+                console.log('🔗 الـ Proxy:', this.config.PROXY_URL);
                 
-                // 1. إظهار الواجهة فورًا
-                this.showUI();
+                // إنشاء الهيكل العظمي
+                this.createSkeleton();
                 
-                // 2. تعيين المستمعين للأحداث
+                // تعيين المستمعين للأحداث
                 this.setupEventListeners();
                 
-                // 3. بدء العد التنازلي القسري
-                this.startForceTimer();
+                // تحديث الفلاتر
+                this.updateTimeFilter();
                 
-                // 4. محاولة جلب البيانات
-                this.fetchDataWithFallback();
-                
-                // 5. بدء التحديثات التلقائية
-                this.startAutoUpdates();
+                // محاولة جلب البيانات
+                await this.loadData();
             }
 
-            // ========== نظام الفشل الآمن ==========
-            showUI() {
-                setTimeout(() => {
-                    document.getElementById('skeletonLoading').style.display = 'none';
-                    document.getElementById('matchesContainer').style.display = 'grid';
-                }, 500);
-            }
-
-            startForceTimer() {
-                this.state.forceTimer = setTimeout(() => {
-                    console.log('⚡ تحميل إجباري بعد 5 ثواني...');
-                    this.state.isForced = true;
-                    this.forceLoad();
-                }, this.config.MAX_LOADING_TIME);
-            }
-
-            forceLoad() {
-                clearTimeout(this.state.forceTimer);
-                clearTimeout(this.state.loadingTimeout);
+            createSkeleton() {
+                const skeletonContainer = document.getElementById('skeletonLoading');
+                const skeletonHTML = Array(6).fill(0).map((_, i) => `
+                    <div class="skeleton-card" style="animation-delay: ${i * 0.1}s;">
+                        <div class="skeleton-header">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="skeleton-circle"></div>
+                                <div style="flex: 1;">
+                                    <div class="skeleton-text medium"></div>
+                                    <div class="skeleton-text small"></div>
+                                </div>
+                            </div>
+                            <div class="skeleton-text small"></div>
+                        </div>
+                        <div class="skeleton-body">
+                            <div class="skeleton-team">
+                                <div class="skeleton-logo"></div>
+                                <div style="flex: 1;">
+                                    <div class="skeleton-text large"></div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin: 20px 0;">
+                                <div class="skeleton-text medium" style="margin: 0 auto 10px;"></div>
+                                <div class="skeleton-text small" style="margin: 0 auto;"></div>
+                            </div>
+                            <div class="skeleton-team">
+                                <div style="flex: 1;">
+                                    <div class="skeleton-text large"></div>
+                                </div>
+                                <div class="skeleton-logo"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
                 
-                if (this.state.matches.length === 0) {
-                    this.loadEmergencyData();
-                }
-                
-                this.hideLoading();
-                this.hideError();
+                skeletonContainer.innerHTML = skeletonHTML;
             }
 
-            // ========== جلب البيانات متعدد الطبقات ==========
-            async fetchDataWithFallback() {
+            async loadData() {
                 this.state.isLoading = true;
                 
-                try {
-                    // المحاولة 1: الـ Proxy (آمن)
-                    if (!this.config.USE_DIRECT_API) {
-                        try {
-                            console.log('🔍 محاولة جلب البيانات من Proxy...');
-                            const proxyData = await this.fetchFromProxy();
-                            if (proxyData && proxyData.length > 0) {
-                                await this.processData(proxyData, 'proxy');
-                                return;
-                            }
-                        } catch (proxyError) {
-                            console.warn('⚠️ فشل الـ Proxy:', proxyError.message);
+                // المحاولة 1: التخزين المحلي
+                const cachedData = this.loadCachedData();
+                if (cachedData && cachedData.length > 0) {
+                    this.state.matches = cachedData;
+                    this.state.dataSource = 'cache';
+                    this.processMatches();
+                    this.showNotification('بيانات مخزنة', 'آخر تحديث: ' + this.formatRelativeTime(this.state.lastUpdate), 'info');
+                }
+                
+                // المحاولة 2: جلب بيانات من Proxy (إذا كان اتصال إنترنت)
+                if (this.state.isOnline) {
+                    try {
+                        await this.fetchFromProxy();
+                    } catch (error) {
+                        console.warn('⚠️ فشل جلب البيانات من Proxy:', error);
+                        // إذا لم تكن هناك بيانات مخزنة، استخدم بيانات الطوارئ
+                        if (this.state.matches.length === 0) {
+                            this.loadEmergencyData();
                         }
                     }
-                    
-                    // المحاولة 2: البيانات المخزنة
-                    const cachedData = this.loadCachedData();
-                    if (cachedData && cachedData.length > 0) {
-                        await this.processData(cachedData, 'cache');
-                        this.showConnectionStatus('جاري استخدام البيانات المخزنة', 'info');
-                        return;
+                } else {
+                    // إذا لم يكن هناك اتصال وليس لدينا بيانات مخزنة
+                    if (this.state.matches.length === 0) {
+                        this.loadEmergencyData();
                     }
-                    
-                    // المحاولة 3: البيانات الطارئة
-                    throw new Error('لا توجد بيانات متاحة');
-                    
-                } catch (error) {
-                    console.warn('⚠️ جميع محاولات جلب البيانات فشلت:', error);
-                    this.loadEmergencyData();
-                    
-                } finally {
-                    this.state.isLoading = false;
-                    this.hideLoading();
-                    clearTimeout(this.state.forceTimer);
                 }
+                
+                this.state.isLoading = false;
             }
 
-            // ========== جلب البيانات من Proxy ==========
             async fetchFromProxy() {
-                if (!this.state.isOnline) {
-                    throw new Error('لا يوجد اتصال بالإنترنت');
-                }
-                
-                if (this.state.proxyErrorCount >= this.state.maxProxyErrors) {
-                    console.log('⚠️ تخطي Proxy بسبب كثرة الأخطاء');
-                    throw new Error('Proxy غير متاح');
-                }
-                
-                // إلغاء أي طلب سابق
-                if (this.state.apiController) {
-                    this.state.apiController.abort();
-                }
-                
-                this.state.apiController = new AbortController();
-                const timeoutId = setTimeout(() => {
-                    this.state.apiController.abort();
-                }, this.config.API_TIMEOUT);
-                
                 try {
                     const today = new Date().toISOString().split('T')[0];
-                    const url = `${this.config.PROXY_URL}/fixtures?date=${today}`;
+                    const url = `${this.config.PROXY_URL}?date=${today}`;
                     
-                    console.log('🔐 جلب البيانات من Proxy:', url);
+                    console.log('🔗 جلب البيانات من:', url);
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), this.config.API_TIMEOUT);
                     
                     const response = await fetch(url, {
                         method: 'GET',
-                        signal: this.state.apiController.signal,
+                        signal: controller.signal,
                         headers: {
                             'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Cache-Control': 'no-cache'
-                        },
-                        mode: 'cors'
+                            'Content-Type': 'application/json'
+                        }
                     });
                     
                     clearTimeout(timeoutId);
                     
-                    console.log('📡 استجابة Proxy:', {
-                        status: response.status,
-                        ok: response.ok,
-                        url: response.url
-                    });
+                    console.log('📡 استجابة Proxy:', response.status);
                     
                     if (!response.ok) {
                         throw new Error(`Proxy Error: ${response.status}`);
@@ -956,101 +862,147 @@
                     
                     const data = await response.json();
                     
-                    // التحقق من البيانات
-                    if (data.error) {
-                        throw new Error(data.message || 'خطأ في Proxy');
+                    // التحقق من تنسيق البيانات
+                    let matchesArray = [];
+                    
+                    if (Array.isArray(data)) {
+                        matchesArray = data;
+                    } else if (data.response && Array.isArray(data.response)) {
+                        matchesArray = data.response;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        matchesArray = data.data;
                     }
                     
-                    // دعم تنسيقات مختلفة من الـ Proxy
-                    let matchesArray = data.response || data;
-                    if (!Array.isArray(matchesArray)) {
-                        matchesArray = [];
-                    }
+                    console.log(`📊 تم استلام ${matchesArray.length} مباراة من Proxy`);
                     
                     if (matchesArray.length === 0) {
-                        console.log('⚠️ لا توجد مباريات من Proxy');
+                        throw new Error('لا توجد مباريات من Proxy');
                     }
                     
-                    // تحويل البيانات
-                    const matches = this.transformAPIData(matchesArray);
+                    const transformedMatches = this.transformProxyData(matchesArray);
                     
-                    this.state.proxyErrorCount = 0;
-                    console.log(`✅ تم جلب ${matches.length} مباراة من Proxy`);
+                    if (transformedMatches.length === 0) {
+                        throw new Error('فشل تحويل بيانات Proxy');
+                    }
                     
-                    return matches;
+                    this.state.matches = transformedMatches;
+                    this.state.dataSource = 'proxy';
+                    this.state.lastUpdate = new Date();
+                    this.saveToCache();
+                    this.processMatches();
+                    this.showNotification('تم التحديث', `تم جلب ${transformedMatches.length} مباراة`, 'success');
                     
                 } catch (error) {
-                    clearTimeout(timeoutId);
-                    
                     if (error.name === 'AbortError') {
-                        console.warn('⏰ انتهت مهلة Proxy');
-                        this.showNotification('مهلة الاتصال', 'جاري استخدام البيانات المخزنة', 'warning');
-                    } else {
-                        console.error('❌ خطأ في Proxy:', error.message);
-                        this.state.proxyErrorCount++;
+                        console.warn('⏰ انتهت مهلة الـ Proxy');
+                        throw new Error('مهلة الاتصال بالـ Proxy');
                     }
-                    
+                    console.error('❌ خطأ في الـ Proxy:', error.message);
                     throw error;
                 }
             }
 
-            // ========== تحويل بيانات API ==========
-            transformAPIData(apiMatches) {
+            transformProxyData(proxyMatches) {
                 const transformed = [];
-                const now = new Date();
                 
-                // إذا كانت بيانات من Render مباشرة (ليست من API-Football)
-                if (apiMatches.length > 0 && apiMatches[0].fixture === undefined) {
-                    console.log('📊 معالجة بيانات Render المباشرة');
-                    return apiMatches;
-                }
-                
-                for (const match of apiMatches) {
+                for (const match of proxyMatches) {
                     try {
-                        const fixture = match.fixture;
-                        const teams = match.teams;
-                        const league = match.league;
-                        const goals = match.goals;
+                        // محاولة فهم تنسيقات مختلفة للبيانات
+                        let fixture, teams, league, goals, score, status, date;
+                        
+                        if (match.fixture && match.teams) {
+                            // تنسيق API-Football
+                            fixture = match.fixture;
+                            teams = match.teams;
+                            league = match.league;
+                            goals = match.goals;
+                            score = match.score;
+                            status = fixture.status;
+                            date = fixture.date;
+                        } else if (match.home_team && match.away_team) {
+                            // تنسيق بديل
+                            fixture = {
+                                id: match.id,
+                                date: match.date || new Date().toISOString(),
+                                status: {
+                                    short: match.status || 'NS',
+                                    elapsed: match.minute || null
+                                },
+                                venue: {
+                                    name: match.venue || 'ملعب غير معروف'
+                                }
+                            };
+                            teams = {
+                                home: { name: match.home_team },
+                                away: { name: match.away_team }
+                            };
+                            league = {
+                                name: match.league || 'دوري غير معروف',
+                                country: match.country || 'غير معروف',
+                                id: match.league_id || 0
+                            };
+                            goals = {
+                                home: match.home_score,
+                                away: match.away_score
+                            };
+                            score = {
+                                fulltime: {
+                                    home: match.home_score,
+                                    away: match.away_score
+                                }
+                            };
+                        } else {
+                            continue; // تخطي إذا لم يكن التنسيق معروفًا
+                        }
                         
                         // تحديد حالة المباراة
-                        let status = 'upcoming';
-                        const statusShort = fixture.status.short;
+                        let statusType = 'upcoming';
+                        const statusShort = status.short || 'NS';
                         
                         if (statusShort === 'FT' || statusShort === 'AET' || statusShort === 'PEN') {
-                            status = 'finished';
+                            statusType = 'finished';
                         } else if (statusShort === '1H' || statusShort === '2H' || statusShort === 'HT' || 
                                   statusShort === 'ET' || statusShort === 'BT' || statusShort === 'P' || 
                                   statusShort === 'SUSP' || statusShort === 'INT' || statusShort === 'LIVE') {
-                            status = 'live';
+                            statusType = 'live';
                         }
                         
                         // حساب الأهمية
                         let importance = 50;
-                        if (league.id === 2) importance = 100; // دوري الأبطال
-                        else if (league.id === 39) importance = 95; // الدوري الإنجليزي
-                        else if (league.id === 140) importance = 90; // الدوري الإسباني
-                        else if (league.id === 135) importance = 88; // الدوري الإيطالي
-                        else if (league.id === 78) importance = 85; // الدوري الألماني
-                        else if (league.country === 'Saudi Arabia') importance = 80; // الدوري السعودي
+                        const leagueId = league.id;
+                        const leagueCountry = league.country;
                         
-                        // إضافة المباراة
+                        if (leagueId === 2) importance = 100; // دوري الأبطال
+                        else if (leagueId === 39) importance = 95; // الدوري الإنجليزي
+                        else if (leagueId === 140) importance = 90; // الدوري الإسباني
+                        else if (leagueId === 135) importance = 88; // الدوري الإيطالي
+                        else if (leagueId === 78) importance = 85; // الدوري الألماني
+                        else if (leagueCountry === 'Saudi Arabia' || leagueCountry === 'السعودية') importance = 80;
+                        
+                        // النتيجة
+                        let scoreText = null;
+                        if (goals && goals.home !== null && goals.away !== null) {
+                            scoreText = `${goals.home}-${goals.away}`;
+                        } else if (score && score.fulltime && score.fulltime.home !== null) {
+                            scoreText = `${score.fulltime.home}-${score.fulltime.away}`;
+                        }
+                        
                         transformed.push({
-                            id: fixture.id.toString(),
+                            id: fixture.id?.toString() || Date.now().toString() + Math.random(),
                             team1: teams.home.name,
                             team2: teams.away.name,
                             league: league.name,
                             country: league.country,
-                            date: new Date(fixture.date),
-                            status: status,
-                            score: goals.home !== null && goals.away !== null ? `${goals.home}-${goals.away}` : null,
-                            minute: fixture.status.elapsed || null,
+                            date: new Date(date),
+                            status: statusType,
+                            score: scoreText,
+                            minute: status.elapsed || null,
                             venue: fixture.venue?.name || 'ملعب غير معروف',
                             importance: importance,
-                            isLive: status === 'live',
-                            isFinished: status === 'finished',
-                            isUpcoming: status === 'upcoming',
-                            logo: this.getLeagueLogo(league.name),
-                            apiData: match
+                            isLive: statusType === 'live',
+                            isFinished: statusType === 'finished',
+                            isUpcoming: statusType === 'upcoming',
+                            logo: this.getLeagueLogo(league.name)
                         });
                         
                     } catch (error) {
@@ -1058,18 +1010,14 @@
                     }
                 }
                 
-                // إضافة مباريات افتراضية إذا كانت القائمة فارغة
-                if (transformed.length === 0) {
-                    console.warn('⚠️ لا توجد مباريات من API، إضافة بيانات افتراضية...');
-                    transformed.push(...this.generateFallbackMatches(now));
-                }
-                
                 return transformed;
             }
 
-            // ========== توليد بيانات احتياطية ==========
-            generateFallbackMatches(now) {
-                const fallbackMatches = [
+            loadEmergencyData() {
+                console.log('🆘 تحميل بيانات الطوارئ...');
+                
+                const now = new Date();
+                const emergencyMatches = [
                     {
                         id: '1',
                         team1: 'الهلال',
@@ -1110,7 +1058,7 @@
                         team2: 'ليفربول',
                         league: 'الدوري الإنجليزي',
                         country: 'إنجلترا',
-                        date: new Date(),
+                        date: now,
                         status: 'live',
                         score: '2-1',
                         minute: 65,
@@ -1120,124 +1068,88 @@
                         isFinished: false,
                         isUpcoming: false,
                         logo: '🏴󠁧󠁢󠁥󠁮󠁧󠁿'
+                    },
+                    {
+                        id: '4',
+                        team1: 'بايرن ميونخ',
+                        team2: 'بوروسيا دورتموند',
+                        league: 'الدوري الألماني',
+                        country: 'ألمانيا',
+                        date: new Date(now.getTime() - 3600000),
+                        status: 'finished',
+                        score: '3-2',
+                        minute: null,
+                        venue: 'أليانز أرينا',
+                        importance: 90,
+                        isLive: false,
+                        isFinished: true,
+                        isUpcoming: false,
+                        logo: '🇩🇪'
+                    },
+                    {
+                        id: '5',
+                        team1: 'يوفنتوس',
+                        team2: 'إنتر ميلان',
+                        league: 'الدوري الإيطالي',
+                        country: 'إيطاليا',
+                        date: new Date(now.getTime() + 10800000),
+                        status: 'upcoming',
+                        score: null,
+                        minute: null,
+                        venue: 'اليوفنتوس ستاديوم',
+                        importance: 88,
+                        isLive: false,
+                        isFinished: false,
+                        isUpcoming: true,
+                        logo: '🇮🇹'
+                    },
+                    {
+                        id: '6',
+                        team1: 'باريس سان جيرمان',
+                        team2: 'مارسيليا',
+                        league: 'الدوري الفرنسي',
+                        country: 'فرنسا',
+                        date: new Date(now.getTime() + 14400000),
+                        status: 'upcoming',
+                        score: null,
+                        minute: null,
+                        venue: 'بارك دي برينس',
+                        importance: 85,
+                        isLive: false,
+                        isFinished: false,
+                        isUpcoming: true,
+                        logo: '🇫🇷'
                     }
                 ];
                 
-                return fallbackMatches;
-            }
-
-            loadEmergencyData() {
-                console.log('🆘 تحميل بيانات الطوارئ...');
-                this.state.isEmergencyData = true;
+                this.state.matches = emergencyMatches;
                 this.state.dataSource = 'emergency';
-                
-                const now = new Date();
-                const matches = this.generateFallbackMatches(now);
-                
-                // تغيير الفلتر إلى "all" تلقائيًا
-                this.state.timeFilter = 'all';
-                this.processData(matches, 'emergency');
-                
+                this.state.lastUpdate = new Date();
+                this.processMatches();
                 this.showNotification('بيانات تجريبية', 'جاري عرض بيانات للتجربة', 'warning');
             }
 
-            // ========== معالجة البيانات الذكية ==========
-            async processData(matches, source) {
-                console.log(`📊 معالجة البيانات (${source}):`, matches.length);
+            processMatches() {
+                // استخراج الدوريات
+                this.state.leagues = new Set(this.state.matches.map(m => m.league));
                 
-                if (!matches || matches.length === 0) {
-                    console.warn('⚠️ لا توجد بيانات للمعالجة');
-                    this.loadEmergencyData();
-                    return;
-                }
-                
-                this.state.matches = matches;
-                this.state.lastUpdate = new Date();
-                this.state.updateCount++;
-                this.state.dataSource = source;
-                
-                // استخراج الدوريات والبلدان
-                this.state.leagues = new Set(matches.map(m => m.league));
-                this.state.countries = new Set(matches.map(m => m.country));
-                
-                // حفظ في التخزين المحلي
-                this.saveToStorage();
-                
-                // الفلترة الذكية
-                this.smartFilterData();
+                // تطبيق الفلاتر
+                this.applyFilters();
                 
                 // تحديث الواجهة
                 this.updateUI();
                 
-                // إخفاء رسائل الخطأ
-                this.hideError();
-                
-                // إشعار حسب مصدر البيانات
-                this.showDataSourceNotification(source);
-            }
-
-            // ========== نظام الفلترة الذكية ==========
-            smartFilterData() {
-                const originalFilter = this.state.timeFilter;
-                
-                if (this.state.isEmergencyData && originalFilter !== 'all') {
-                    this.state.timeFilter = 'all';
-                    this.showNotification('عرض جميع المباريات', 'بسبب بيانات الطوارئ', 'info');
-                }
-                
-                // محاولة التطبيق الأولي
-                this.applyFilters();
-                
-                if (this.state.filteredMatches.length === 0 && this.state.timeFilter !== 'all') {
-                    console.warn(`⚠️ الفلتر "${this.state.timeFilter}" يعطي 0 نتيجة`);
-                    
-                    const foundFilter = this.findWorkingFilter();
-                    
-                    if (foundFilter) {
-                        this.state.timeFilter = foundFilter;
-                        this.applyFilters();
-                        
-                        if (originalFilter !== foundFilter) {
-                            this.showNotification(
-                                'تم تغيير الفلتر تلقائيًا',
-                                `من "${this.getFilterLabel(originalFilter)}" إلى "${this.getFilterLabel(foundFilter)}"`,
-                                'warning'
-                            );
-                        }
-                    }
-                }
-                
-                if (this.state.filteredMatches.length === 0) {
-                    console.warn('⚠️ جميع الفلاتر تعطي 0 نتيجة، استخدام "all"');
-                    this.state.timeFilter = 'all';
-                    this.applyFilters();
-                }
-            }
-
-            findWorkingFilter() {
-                const filterOrder = ['week', 'tomorrow', 'today', 'all'];
-                
-                for (const filter of filterOrder) {
-                    if (filter === this.state.timeFilter) continue;
-                    
-                    const tempFilter = this.state.timeFilter;
-                    this.state.timeFilter = filter;
-                    this.applyFilters();
-                    
-                    if (this.state.filteredMatches.length > 0) {
-                        console.log(`✅ تم العثور على فلتر عامل: ${filter}`);
-                        return filter;
-                    }
-                    
-                    this.state.timeFilter = tempFilter;
-                }
-                
-                return 'all';
+                // إخفاء الهيكل العظمي وإظهار المباريات
+                setTimeout(() => {
+                    document.getElementById('skeletonLoading').style.display = 'none';
+                    document.getElementById('matchesContainer').style.display = 'grid';
+                }, 500);
             }
 
             applyFilters() {
                 let filtered = [...this.state.matches];
                 
+                // فلترة الوقت
                 if (this.state.timeFilter !== 'all') {
                     const now = new Date();
                     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1268,10 +1180,12 @@
                     }
                 }
                 
+                // فلترة الدوري
                 if (this.state.leagueFilter !== 'all') {
                     filtered = filtered.filter(m => m.league === this.state.leagueFilter);
                 }
                 
+                // الترتيب
                 filtered.sort((a, b) => {
                     if (a.isLive && !b.isLive) return -1;
                     if (!a.isLive && b.isLive) return 1;
@@ -1287,11 +1201,11 @@
                 this.state.filteredMatches = filtered;
             }
 
-            // ========== تحديثات الواجهة ==========
             updateUI() {
                 this.updateStats();
                 this.renderMatches();
-                this.updateFilters();
+                this.updateTimeFilter();
+                this.updateLeagueFilter();
             }
 
             updateStats() {
@@ -1324,11 +1238,7 @@
                     
                     const emptyText = document.querySelector('#emptyState h3');
                     if (emptyText) {
-                        if (this.state.matches.length === 0) {
-                            emptyText.textContent = 'لا توجد بيانات مباريات متاحة';
-                        } else {
-                            emptyText.textContent = `لا توجد مباريات في "${this.getFilterLabel(this.state.timeFilter)}"`;
-                        }
+                        emptyText.textContent = `لا توجد مباريات في "${this.getFilterLabel(this.state.timeFilter)}"`;
                     }
                     return;
                 }
@@ -1336,8 +1246,9 @@
                 emptyState.style.display = 'none';
                 errorState.style.display = 'none';
                 
-                container.innerHTML = this.state.filteredMatches.map(match => `
-                    <div class="match-card ${match.status} ${match.importance > 85 ? 'important' : ''}">
+                container.innerHTML = this.state.filteredMatches.map((match, index) => `
+                    <div class="match-card ${match.status} ${match.importance > 85 ? 'important' : ''}" 
+                         style="animation-delay: ${index * 0.1}s">
                         <div class="match-header">
                             <div class="league-info">
                                 <div class="league-logo">${match.logo || '⚽'}</div>
@@ -1391,8 +1302,8 @@
                             ` : ''}
                             ${this.state.dataSource === 'proxy' ? `
                                 <div class="detail-item" style="grid-column: span 2; justify-content: center; background: rgba(0, 200, 83, 0.1); border-radius: 8px; padding: 8px;">
-                                    <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
-                                    <span style="color: var(--primary); font-weight: 700;">بيانات آمنة</span>
+                                    <i class="fas fa-server" style="color: var(--primary);"></i>
+                                    <span style="color: var(--primary); font-weight: 700;">بيانات حقيقية</span>
                                 </div>
                             ` : ''}
                         </div>
@@ -1400,7 +1311,36 @@
                 `).join('');
             }
 
-            // ========== دوال مساعدة ==========
+            updateTimeFilter() {
+                const filters = [
+                    { id: 'today', label: 'اليوم' },
+                    { id: 'tomorrow', label: 'غدًا' },
+                    { id: 'week', label: 'هذا الأسبوع' },
+                    { id: 'all', label: 'الكل' }
+                ];
+                
+                const container = document.getElementById('timeFilter');
+                container.innerHTML = filters.map(filter => `
+                    <button class="time-btn ${this.state.timeFilter === filter.id ? 'active' : ''}" 
+                            onclick="window.FootballApp.setTimeFilter('${filter.id}')">
+                        ${filter.label}
+                    </button>
+                `).join('');
+            }
+
+            updateLeagueFilter() {
+                const leagues = ['all', ...Array.from(this.state.leagues)].slice(0, 10);
+                
+                const container = document.getElementById('leagueFilter');
+                container.innerHTML = leagues.map(league => `
+                    <button class="league-btn ${this.state.leagueFilter === league ? 'active' : ''}" 
+                            onclick="window.FootballApp.setLeagueFilter('${league}')">
+                        ${league === 'all' ? 'جميع الدوريات' : league}
+                    </button>
+                `).join('');
+            }
+
+            // دوال مساعدة
             getLeagueLogo(leagueName) {
                 const logos = {
                     'Premier League': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
@@ -1409,13 +1349,12 @@
                     'Bundesliga': '🇩🇪',
                     'Ligue 1': '🇫🇷',
                     'Saudi Professional League': '🇸🇦',
-                    'UEFA Champions League': '🏆',
-                    'UEFA Europa League': '🌟',
-                    'Copa del Rey': '🥇',
-                    'FA Cup': '🏆',
                     'الدوري السعودي': '🇸🇦',
                     'الدوري الإنجليزي': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-                    'الدوري الإسباني': '🇪🇸'
+                    'الدوري الإسباني': '🇪🇸',
+                    'الدوري الإيطالي': '🇮🇹',
+                    'الدوري الألماني': '🇩🇪',
+                    'الدوري الفرنسي': '🇫🇷'
                 };
                 return logos[leagueName] || '⚽';
             }
@@ -1435,7 +1374,8 @@
                     if (hours < 24 && hours > 0) {
                         return `بعد ${hours} ساعة`;
                     } else if (hours <= 0) {
-                        return 'قريبًا';
+                        const minutes = Math.floor(diff / (1000 * 60));
+                        return minutes > 0 ? `بعد ${minutes} دقيقة` : 'قريبًا';
                     }
                     
                     return matchTime.toLocaleTimeString('ar-SA', {
@@ -1472,54 +1412,26 @@
                 return labels[filter] || filter;
             }
 
-            // ========== عناصر التحكم في الفلاتر ==========
-            updateFilters() {
-                this.updateTimeFilter();
-                this.updateLeagueFilter();
+            formatRelativeTime(date) {
+                if (!date) return 'غير معروف';
+                const diff = Math.floor((Date.now() - new Date(date)) / 60000);
+                if (diff < 1) return 'الآن';
+                if (diff < 60) return `قبل ${diff} دقيقة`;
+                if (diff < 1440) return `قبل ${Math.floor(diff/60)} ساعة`;
+                return `قبل ${Math.floor(diff/1440)} يوم`;
             }
 
-            updateTimeFilter() {
-                const filters = [
-                    { id: 'today', label: 'اليوم' },
-                    { id: 'tomorrow', label: 'غدًا' },
-                    { id: 'week', label: 'هذا الأسبوع' },
-                    { id: 'all', label: 'الكل' }
-                ];
-                
-                const container = document.getElementById('timeFilter');
-                container.innerHTML = filters.map(filter => `
-                    <button class="time-btn ${this.state.timeFilter === filter.id ? 'active' : ''}" 
-                            onclick="window.FootballApp.setTimeFilter('${filter.id}')">
-                        ${filter.label}
-                    </button>
-                `).join('');
-            }
-
-            updateLeagueFilter() {
-                const leagues = ['all', ...Array.from(this.state.leagues)];
-                
-                const container = document.getElementById('leagueFilter');
-                container.innerHTML = leagues.slice(0, 8).map(league => `
-                    <button class="league-btn ${this.state.leagueFilter === league ? 'active' : ''}" 
-                            onclick="window.FootballApp.setLeagueFilter('${league}')">
-                        ${league === 'all' ? 'جميع الدوريات' : league}
-                    </button>
-                `).join('');
-            }
-
-            // ========== التخزين ==========
-            saveToStorage() {
+            // التخزين
+            saveToCache() {
                 try {
                     const data = {
                         matches: this.state.matches,
                         lastUpdate: this.state.lastUpdate,
-                        timeFilter: this.state.timeFilter,
-                        leagueFilter: this.state.leagueFilter,
-                        dataSource: this.state.dataSource,
                         version: this.config.VERSION
                     };
                     
                     localStorage.setItem('footscore_pro_data', JSON.stringify(data));
+                    console.log('💾 تم حفظ البيانات في التخزين المحلي');
                 } catch (e) {
                     console.warn('⚠️ تعذر حفظ البيانات');
                 }
@@ -1528,75 +1440,85 @@
             loadCachedData() {
                 try {
                     const data = localStorage.getItem('footscore_pro_data');
-                    if (!data) return null;
+                    if (!data) {
+                        console.log('📭 لا توجد بيانات مخزنة');
+                        return null;
+                    }
                     
                     const parsed = JSON.parse(data);
                     
-                    if (parsed.version !== this.config.VERSION) return null;
+                    if (parsed.version !== this.config.VERSION) {
+                        console.log('🔄 نسخة البيانات قديمة');
+                        return null;
+                    }
                     
                     if (!parsed.lastUpdate) return null;
                     
                     const expiryTime = new Date(parsed.lastUpdate).getTime() + this.config.CACHE_DURATION;
-                    if (Date.now() > expiryTime) return null;
-                    
-                    if (parsed.timeFilter) this.state.timeFilter = parsed.timeFilter;
-                    if (parsed.leagueFilter) this.state.leagueFilter = parsed.leagueFilter;
-                    if (parsed.dataSource) this.state.dataSource = parsed.dataSource;
+                    if (Date.now() > expiryTime) {
+                        console.log('⏰ انتهت صلاحية البيانات المخزنة');
+                        return null;
+                    }
                     
                     const matches = parsed.matches.map(match => ({
                         ...match,
                         date: new Date(match.date)
                     }));
                     
+                    this.state.lastUpdate = new Date(parsed.lastUpdate);
                     console.log(`📂 تم تحميل ${matches.length} مباراة من التخزين المحلي`);
+                    
                     return matches;
                     
                 } catch (e) {
-                    console.warn('⚠️ تعذر تحميل البيانات المخزنة');
+                    console.warn('⚠️ تعذر تحميل البيانات المخزنة:', e);
                     return null;
                 }
             }
 
-            // ========== معالجات الأحداث ==========
+            // معالجات الأحداث
             setupEventListeners() {
                 window.addEventListener('online', () => {
                     this.state.isOnline = true;
                     this.showConnectionStatus('تم استعادة الاتصال', 'success');
-                    this.fetchDataWithFallback();
+                    this.showNotification('تم استعادة الاتصال', 'جاري تحديث البيانات...', 'success');
+                    setTimeout(() => this.refreshMatches(), 2000);
                 });
                 
                 window.addEventListener('offline', () => {
                     this.state.isOnline = false;
                     this.showConnectionStatus('لا يوجد اتصال', 'error');
-                    this.showNotification('العمل بدون اتصال', 'جاري استخدام البيانات المخزنة', 'warning');
+                    this.showNotification('لا يوجد اتصال', 'جاري استخدام البيانات المخزنة', 'warning');
                 });
                 
-                document.addEventListener('visibilitychange', () => {
-                    if (!document.hidden && this.state.isOnline && !this.state.isLoading) {
-                        this.fetchDataWithFallback();
+                // التحديث التلقائي كل دقيقة
+                setInterval(() => {
+                    if (this.state.isOnline && !this.state.isLoading) {
+                        console.log('🔄 تحديث تلقائي...');
+                        this.refreshMatches();
                     }
-                });
+                }, this.config.UPDATE_INTERVAL);
             }
 
-            // ========== طرق عامة ==========
+            showConnectionStatus(message, type = 'info') {
+                const status = document.getElementById('connectionStatus');
+                status.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'wifi' : 'wifi-slash'}"></i>
+                    <span>${message}</span>
+                `;
+                
+                status.className = `connection-status ${type} show`;
+                
+                setTimeout(() => {
+                    status.classList.remove('show');
+                }, 3000);
+            }
+
+            // واجهة المستخدم
             setTimeFilter(filter) {
-                const oldFilter = this.state.timeFilter;
                 this.state.timeFilter = filter;
-                
-                if (this.state.isEmergencyData) {
-                    this.state.isEmergencyData = false;
-                }
-                
-                this.smartFilterData();
+                this.applyFilters();
                 this.updateUI();
-                
-                if (oldFilter !== filter) {
-                    this.showNotification(
-                        'تم تغيير الفلتر',
-                        `من "${this.getFilterLabel(oldFilter)}" إلى "${this.getFilterLabel(filter)}"`,
-                        'info'
-                    );
-                }
             }
 
             setLeagueFilter(filter) {
@@ -1605,9 +1527,23 @@
                 this.updateUI();
             }
 
-            refreshMatches() {
+            async refreshMatches() {
                 this.showNotification('جاري التحديث', 'جاري جلب أحدث البيانات...', 'info');
-                this.fetchDataWithFallback();
+                
+                // إعادة إنشاء الهيكل العظمي
+                document.getElementById('skeletonLoading').style.display = 'grid';
+                document.getElementById('matchesContainer').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'none';
+                
+                try {
+                    await this.fetchFromProxy();
+                } catch (error) {
+                    console.warn('⚠️ فشل تحديث البيانات:', error);
+                    this.showNotification('فشل التحديث', 'جاري استخدام البيانات الحالية', 'warning');
+                    // إعادة عرض البيانات الحالية
+                    document.getElementById('skeletonLoading').style.display = 'none';
+                    document.getElementById('matchesContainer').style.display = 'grid';
+                }
             }
 
             showLiveMatches() {
@@ -1625,53 +1561,11 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
-            // ========== أدوات مساعدة ==========
-            hideLoading() {
-                document.getElementById('skeletonLoading').style.display = 'none';
-            }
-
-            hideError() {
-                document.getElementById('errorState').style.display = 'none';
-            }
-
-            // ========== التحديثات التلقائية ==========
-            startAutoUpdates() {
-                clearInterval(this.state.updateTimer);
-                
-                const interval = this.state.isOnline ? 
-                    this.config.UPDATE_INTERVAL : 
-                    this.config.OFFLINE_UPDATE_INTERVAL;
-                
-                this.state.updateTimer = setInterval(() => {
-                    if (this.state.isOnline && !this.state.isLoading) {
-                        this.fetchDataWithFallback();
-                    }
-                }, interval);
-            }
-
-            // ========== الإشعارات ==========
-            showDataSourceNotification(source) {
-                const messages = {
-                    'proxy': ['تم التحديث', 'بيانات آمنة من Proxy', 'success'],
-                    'direct': ['تم التحديث', 'بيانات مباشرة من API', 'warning'],
-                    'cache': ['بيانات مخزنة', 'آخر تحديث: ' + this.formatRelativeTime(this.state.lastUpdate), 'info'],
-                    'emergency': ['بيانات تجريبية', 'جاري عرض بيانات للتجربة', 'warning']
-                };
-                
-                if (messages[source]) {
-                    this.showNotification(...messages[source]);
-                }
-            }
-
-            formatRelativeTime(date) {
-                const diff = Math.floor((Date.now() - date) / 60000);
-                if (diff < 1) return 'الآن';
-                if (diff < 60) return `قبل ${diff} دقيقة`;
-                if (diff < 1440) return `قبل ${Math.floor(diff/60)} ساعة`;
-                return `قبل ${Math.floor(diff/1440)} يوم`;
-            }
-
             showNotification(title, message, type = 'info') {
+                // إزالة الإشعارات القديمة
+                const oldNotifications = document.querySelectorAll('.notification');
+                oldNotifications.forEach(n => n.remove());
+                
                 const notification = document.createElement('div');
                 notification.className = 'notification';
                 notification.style.background = type === 'error' ? 'var(--danger)' : 
@@ -1695,28 +1589,13 @@
                     if (notification.parentNode) {
                         notification.remove();
                     }
-                }, 5000);
-            }
-
-            showConnectionStatus(message, type = 'info') {
-                const status = document.getElementById('connectionStatus');
-                status.innerHTML = `
-                    <i class="fas fa-${type === 'success' ? 'wifi' : 'wifi-slash'}"></i>
-                    <span>${message}</span>
-                `;
-                
-                status.className = `connection-status ${type} show`;
-                
-                setTimeout(() => {
-                    status.classList.remove('show');
-                }, 3000);
+                }, 4000);
             }
         }
 
-        // ========== التهيئة ==========
+        // التهيئة
         document.addEventListener('DOMContentLoaded', () => {
-            const app = new FootballApp();
-            window.FootballApp = app;
+            window.FootballApp = new FootballApp();
         });
     </script>
 </body>
